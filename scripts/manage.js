@@ -467,8 +467,15 @@ async function handleSubmission(issue) {
     if (repoPath) {
         console.log(`    仓库路径: ${repoPath}`);
         const encodedPath = encodeURI(repoPath);
-        console.log(`    🔗 在线预览: https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/blob/main/${encodedPath} (PDF/Word 可直接看)`);
-        console.log(`    🔗 原始下载: https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${encodedPath}`);
+        const rawFileUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${encodedPath}`;
+        const ext = path.extname(repoPath).toLowerCase();
+        if (ext === '.pdf') {
+            console.log(`    🔗 在线预览: https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/blob/main/${encodedPath}`);
+        } else {
+            // Word 文件用 Office Online Viewer 预览
+            console.log(`    🔗 在线预览: https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawFileUrl)}`);
+        }
+        console.log(`    🔗 原始下载: ${rawFileUrl}`);
     }
     if (pdfUrl) console.log(`    PDF链接: ${pdfUrl}`);
 
