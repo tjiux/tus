@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         let filtered = allPapers;
         if (year) filtered = filtered.filter(p => p.year === parseInt(year));
         if (semester) filtered = filtered.filter(p => p.semester === semester);
-        if (keyword) filtered = filtered.filter(p => p.title.toLowerCase().includes(keyword));
+        if (keyword) filtered = filtered.filter(p => charMatch(p.title, keyword));
 
         renderPapers(filtered);
     }
