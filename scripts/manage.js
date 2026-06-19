@@ -168,7 +168,7 @@ async function addPaper() {
     }
 
     const year = await question('  年份 (如: 2024): ');
-    const semester = await question('  学期 (期中/期末, 默认: 期末): ');
+    const semester = await question('  学期 (上学期期中/上学期期末/下学期期中/下学期期末, 默认 上学期期末): ');
     const grade = await question('  年级 (1-大一 2-大二 3-大三 4-大四, 默认继承科目年级): ');
     const uploader = await question('  上传者 (选填): ');
 
