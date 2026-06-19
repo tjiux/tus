@@ -172,10 +172,10 @@ async function addPaper() {
     const grade = await question('  年级 (1-大一 2-大二 3-大三 4-大四, 默认继承科目年级): ');
     const uploader = await question('  上传者 (选填): ');
 
-    // PDF 文件
-    console.log('\n  📂 PDF 文件：');
-    console.log(`  请将 PDF 文件放入: assets/papers/`);
-    const fileName = await question('  文件名 (如: 2024高数期末.pdf): ');
+    // 试卷文件
+    console.log('\n  📂 试卷文件：');
+    console.log(`  请将文件放入: assets/papers/`);
+    const fileName = await question('  文件名 (如: 2024高数期末.pdf 或 2024高数期末.docx): ');
 
     const pdfPath = path.join(ASSETS_DIR, fileName);
     let fileSize = 0;
@@ -302,18 +302,64 @@ function githubAPI(method, path, body) {
             }
         };
 
-        const req = https.request(options, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-                try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }
-                catch { resolve({ status: res.statusCode, data: data }); }
+        // 对含 body 的请求设置 Content-Type
+        if (body) {
+            const bodyStr = JSON.stringify(body);
+            options.headers['Content-Type'] = 'application/json';
+            options.headers['Content-Length'] = Buffer.byteLength(bodyStr);
+            const req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }
+                    catch { resolve({ status: res.statusCode, data: data }); }
+                });
             });
-        });
-        req.on('error', reject);
-        if (body) req.write(JSON.stringify(body));
-        req.end();
+            req.on('error', reject);
+            req.write(bodyStr);
+            req.end();
+        } else {
+            const req = https.request(options, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }
+                    catch { resolve({ status: res.statusCode, data: data }); }
+                });
+            });
+            req.on('error', reject);
+            req.end();
+        }
     });
+}
+
+// 通过 GitHub API 删除仓库中的文件
+async function deleteRepoFile(repoPath) {
+    if (!repoPath) return false;
+
+    // 先获取文件的 SHA
+    const getResult = await githubAPI('GET', `/contents/${repoPath}`);
+    if (getResult.status !== 200) {
+        console.log(`  ⚠️ 无法获取文件信息: ${getResult.data?.message || '未知错误'}`);
+        return false;
+    }
+
+    const sha = getResult.data.sha;
+    console.log(`  🗑️  删除文件: ${repoPath}`);
+
+    const delResult = await githubAPI('DELETE', `/contents/${repoPath}`, {
+        message: `清理: 删除 ${repoPath}`,
+        sha: sha,
+        branch: 'main'
+    });
+
+    if (delResult.status === 200) {
+        console.log(`  ✅ 已从仓库删除`);
+        return true;
+    } else {
+        console.log(`  ❌ 删除失败: ${delResult.data?.message || '未知错误'}`);
+        return false;
+    }
 }
 
 async function downloadFile(url, destPath) {
@@ -420,8 +466,9 @@ async function handleSubmission(issue) {
     console.log(`    提交者: ${uploader}`);
     if (repoPath) {
         console.log(`    仓库路径: ${repoPath}`);
-        const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${repoPath}`;
-        console.log(`    🔗 直接打开: ${rawUrl}`);
+        const encodedPath = encodeURI(repoPath);
+        console.log(`    🔗 国内加速: https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodedPath}`);
+        console.log(`    🔗 原始链接: https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${encodedPath}`);
     }
     if (pdfUrl) console.log(`    PDF链接: ${pdfUrl}`);
 
@@ -431,7 +478,7 @@ async function handleSubmission(issue) {
     if (action.toLowerCase() === 'a') {
         await acceptSubmission(issue, { subject, title, grade, year, semester, teacher, uploader, pdfUrl, repoPath });
     } else if (action.toLowerCase() === 'd') {
-        await rejectSubmission(issue);
+        await rejectSubmission(issue, repoPath);
     } else {
         console.log('  已跳过');
     }
@@ -446,7 +493,8 @@ async function acceptSubmission(issue, info) {
     // 情况1: 文件在仓库 pending 目录中
     if (info.repoPath) {
         const pendingFile = path.join(__dirname, '..', info.repoPath);
-        fileName = `${info.title.replace(/[\\/:*?"<>|]/g, '_')}.pdf`;
+        const _ext = path.extname(info.repoPath) || '.pdf';
+        fileName = `${info.title.replace(/[\/:*?"<>|]/g, '_')}${_ext}`;
 
         if (fs.existsSync(pendingFile)) {
             console.log(`  📄 在 pending 目录找到文件`);
@@ -454,7 +502,7 @@ async function acceptSubmission(issue, info) {
             const destPath = path.join(papersDir, fileName);
             fs.renameSync(pendingFile, destPath);
             const stats = fs.statSync(destPath);
-            console.log(`  ✅ PDF 已移动到: assets/papers/${fileName} (${formatSize(stats.size)})`);
+            console.log(`  ✅ 已移动到: assets/papers/${fileName} (${formatSize(stats.size)})`);
         } else {
             console.log(`  ⚠️ pending 目录未找到文件, 通过 GitHub API 下载`);
             try {
@@ -465,42 +513,43 @@ async function acceptSubmission(issue, info) {
                     const buffer = Buffer.from(result.data.content, 'base64');
                     fs.writeFileSync(destPath, buffer);
                     const stats = fs.statSync(destPath);
-                    console.log(`  ✅ PDF 已保存: assets/papers/${fileName} (${formatSize(stats.size)})`);
+                    console.log(`  ✅ 已保存: assets/papers/${fileName} (${formatSize(stats.size)})`);
                 } else {
                     throw new Error(result.data?.message || 'API 返回异常');
                 }
             } catch (e2) {
                 console.log(`  ⚠️ 下载失败: ${e2.message}`);
-                const manual = await question('  是否手动放置 PDF 后继续? (y/N): ');
+                const manual = await question('  是否手动放置文件后继续? (y/N): ');
                 if (manual.toLowerCase() !== 'y') { console.log('  已取消'); return; }
-                fileName = await question('  输入 PDF 文件名 (放在 assets/papers/ 下): ');
+                fileName = await question('  输入文件名 (放在 assets/papers/ 下): ');
             }
         }
     }
     // 情况2: 有 PDF 链接
     else if (info.pdfUrl) {
-        fileName = `${info.title.replace(/[\\/:*?"<>|]/g, '_')}.pdf`;
+        const _ext2 = path.extname(new URL(info.pdfUrl).pathname) || '.pdf';
+        fileName = `${info.title.replace(/[\/:*?"<>|]/g, '_')}${_ext2}`;
         const destPath = path.join(papersDir, fileName);
 
-        console.log(`  📥 正在下载 PDF...`);
+        console.log(`  📥 正在下载文件...`);
         try {
             await downloadFile(info.pdfUrl, destPath);
             const stats = fs.statSync(destPath);
-            console.log(`  ✅ PDF 已保存: assets/papers/${fileName} (${formatSize(stats.size)})`);
+            console.log(`  ✅ 已保存: assets/papers/${fileName} (${formatSize(stats.size)})`);
         } catch (e) {
-            console.log(`  ⚠️ PDF 下载失败: ${e.message}`);
-            const manual = await question('  是否手动放置 PDF 后继续? (y/N): ');
+            console.log(`  ⚠️ 下载失败: ${e.message}`);
+            const manual = await question('  是否手动放置文件后继续? (y/N): ');
             if (manual.toLowerCase() !== 'y') { console.log('  已取消'); return; }
-            fileName = await question('  输入 PDF 文件名 (放在 assets/papers/ 下): ');
+            fileName = await question('  输入文件名 (放在 assets/papers/ 下): ');
         }
     } else {
-        console.log('  ⚠️ 此提交没有 PDF 链接');
-        const manual = await question('  是否已手动放置 PDF? (y/N): ');
+        console.log('  ⚠️ 此提交没有文件链接');
+        const manual = await question('  是否已手动放置文件? (y/N): ');
         if (manual.toLowerCase() !== 'y') {
             console.log('  已取消');
             return;
         }
-        fileName = await question('  输入 PDF 文件名 (放在 assets/papers/ 下): ');
+        fileName = await question('  输入文件名 (放在 assets/papers/ 下): ');
     }
 
     // 2. 添加到 papers.json
@@ -555,6 +604,12 @@ async function acceptSubmission(issue, info) {
     papers.push(newPaper);
     writeJSON(PAPERS_FILE, papers);
 
+    // 2.5 清理 pending 中的文件
+    if (info.repoPath) {
+        console.log(`  🗑️  清理 pending 中的原文件...`);
+        await deleteRepoFile(info.repoPath);
+    }
+
     // 3. 关闭 Issue
     console.log(`  🔒 正在关闭 Issue #${issue.number}...`);
     await githubAPI('PATCH', `/issues/${issue.number}`, {
@@ -566,8 +621,14 @@ async function acceptSubmission(issue, info) {
     console.log(`  💡 运行「部署到 GitHub」即可更新线上网站`);
 }
 
-async function rejectSubmission(issue) {
+async function rejectSubmission(issue, repoPath) {
     const reason = await question('  拒绝原因 (选填): ');
+
+    // 删除 pending 中的文件
+    if (repoPath) {
+        console.log('  🗑️  正在删除上传的文件...');
+        await deleteRepoFile(repoPath);
+    }
 
     const comment = `❌ 此提交未通过审核。`;
     await githubAPI('PATCH', `/issues/${issue.number}`, {
@@ -576,6 +637,73 @@ async function rejectSubmission(issue) {
     });
 
     console.log('  ✅ 已关闭 Issue');
+}
+
+// ==================== 清理 pending 目录 ====================
+
+async function cleanPending() {
+    console.log('\n🧹 清理 pending 目录：');
+    console.log('-'.repeat(30));
+
+    // 获取远程 pending 目录中的文件
+    const result = await githubAPI('GET', '/contents/assets/papers/pending');
+    if (result.status !== 200) {
+        console.log('  ❌ 获取文件列表失败:', result.data?.message || '未知错误');
+        return;
+    }
+
+    const files = (result.data || []).filter(f => f.name !== '.gitkeep' && f.type === 'file');
+
+    if (files.length === 0) {
+        console.log('  ✅ pending 目录为空，无需清理');
+        return;
+    }
+
+    console.log(`  📄 共 ${files.length} 个文件：\n`);
+    files.forEach((f, i) => {
+        console.log(`  [${i + 1}] ${f.name} (${(f.size / 1024).toFixed(1)} KB)`);
+    });
+
+    console.log('');
+    const choice = await question('  选择要删除的文件编号（逗号分隔，输入 all 删除全部，按回车跳过）: ');
+    if (!choice.trim()) {
+        console.log('  已跳过');
+        return;
+    }
+
+    const toDelete = [];
+    if (choice.trim().toLowerCase() === 'all') {
+        toDelete.push(...files.map(f => f.path));
+    } else {
+        const indices = choice.split(',').map(s => parseInt(s.trim()) - 1);
+        for (const idx of indices) {
+            if (idx >= 0 && idx < files.length) {
+                toDelete.push(files[idx].path);
+            }
+        }
+    }
+
+    if (toDelete.length === 0) {
+        console.log('  没有选择有效的文件');
+        return;
+    }
+
+    console.log(`\n  即将删除 ${toDelete.length} 个文件：`);
+    toDelete.forEach(p => console.log(`    - ${p}`));
+
+    const confirm = await question(`\n  确定删除? (y/N): `);
+    if (confirm.toLowerCase() !== 'y') {
+        console.log('  已取消');
+        return;
+    }
+
+    for (const filePath of toDelete) {
+        console.log('');
+        await deleteRepoFile(filePath);
+    }
+
+    console.log(`\n  ✅ 清理完成！删除了 ${toDelete.length} 个文件`);
+    console.log('  💡 运行「部署到 GitHub」将删除提交到远程仓库');
 }
 
 async function main() {
@@ -591,6 +719,7 @@ async function main() {
         console.log('  [3] 添加试卷');
         console.log('  [4] 查看待审核提交');
         console.log('  [5] 部署到 GitHub');
+        console.log('  [6] 清理 pending 目录（已处理文件）');
         console.log('  [0] 退出\n');
 
         const choice = await question('请输入编号: ');
@@ -610,6 +739,9 @@ async function main() {
                 break;
             case '5':
                 await deployToGitHub();
+                break;
+            case '6':
+                await cleanPending();
                 break;
             case '0':
                 console.log('\n👋 再见！\n');
