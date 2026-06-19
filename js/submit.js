@@ -9,6 +9,19 @@
  * 5. 管理员在 GitHub Issues 页面审核处理，新科目自动创建
  */
 
+// 兜底：如果 api-client.js 未加载
+if (typeof charMatch === 'undefined') {
+    window.charMatch = function(text, query) {
+        if (!query) return true;
+        const t = text.toLowerCase();
+        const q = query.toLowerCase().replace(/\s/g, '');
+        return [...q].every(char => t.includes(char));
+    };
+}
+if (typeof getSubjects === 'undefined') {
+    window.getSubjects = async function() { return []; };
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     // 填充年份
     const yearSelect = document.getElementById('paperYear');
