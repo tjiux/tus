@@ -88,7 +88,8 @@ async function listSubjects() {
 
     subjects.forEach(s => {
         const count = papers.filter(p => p.subject_id === s.id).length;
-        console.log(`  [${s.id}] ${s.name}${s.teacher ? ` - ${s.teacher}` : ''}`);
+        const gradeTag = s.grade ? ` [${s.grade}]` : '';
+        console.log(`  [${s.id}] ${s.name}${gradeTag}${s.teacher ? ` - ${s.teacher}` : ''}`);
         console.log(`       试卷: ${count} 份 | 创建: ${s.created_at || 'N/A'}`);
         console.log('');
     });
@@ -106,12 +107,17 @@ async function createSubject() {
         return;
     }
 
+    let grade = await question('  适用年级 (1-大一 2-大二 3-大三 4-大四): ');
+    const gradeMap = { '1': '大一', '2': '大二', '3': '大三', '4': '大四' };
+    grade = gradeMap[grade.trim()] || grade.trim() || '';
+
     const teacher = await question('  授课教师 (选填): ');
 
     const maxId = subjects.reduce((max, s) => Math.max(max, s.id), 0);
     const newSubject = {
         id: maxId + 1,
         name: name.trim(),
+        grade: grade,
         teacher: teacher.trim(),
         description: '',
         created_at: new Date().toISOString().split('T')[0]
@@ -163,6 +169,7 @@ async function addPaper() {
 
     const year = await question('  年份 (如: 2024): ');
     const semester = await question('  学期 (期中/期末, 默认: 期末): ');
+    const grade = await question('  年级 (1-大一 2-大二 3-大三 4-大四, 默认继承科目年级): ');
     const uploader = await question('  上传者 (选填): ');
 
     // PDF 文件
@@ -190,12 +197,16 @@ async function addPaper() {
 
     const maxId = papers.reduce((max, p) => Math.max(max, p.id), 0);
 
+    const gradeMap = { '1': '大一', '2': '大二', '3': '大三', '4': '大四' };
+    const finalGrade = gradeMap[grade.trim()] || grade.trim() || subject.grade || '';
+
     const newPaper = {
         id: maxId + 1,
         subject_id: subjId,
         title: title.trim(),
         year: parseInt(year) || new Date().getFullYear(),
         semester: semester.trim() || '期末',
+        grade: finalGrade,
         file_url: '',
         file_path: fileName,
         file_name: fileName,
@@ -389,6 +400,7 @@ async function handleSubmission(issue) {
 
     const subject = fields['科目'] || '未知科目';
     const title = fields['标题'] || issue.title.replace('[新试卷] ', '');
+    const grade = fields['年级'] || '';
     const year = fields['年份'] || '';
     const semester = fields['学期'] || '期末';
     const teacher = fields['教师'] || '';
@@ -398,6 +410,7 @@ async function handleSubmission(issue) {
     console.log(`\n  试卷信息:`);
     console.log(`    科目: ${subject}`);
     console.log(`    标题: ${title}`);
+    if (grade) console.log(`    年级: ${grade}`);
     console.log(`    年份: ${year} | 学期: ${semester}`);
     if (teacher) console.log(`    教师: ${teacher}`);
     console.log(`    提交者: ${uploader}`);
@@ -407,7 +420,7 @@ async function handleSubmission(issue) {
     const action = await question('  操作: [a]接受并添加 [d]拒绝并关闭 [s]跳过 (a/d/s): ');
 
     if (action.toLowerCase() === 'a') {
-        await acceptSubmission(issue, { subject, title, year, semester, teacher, uploader, pdfUrl });
+        await acceptSubmission(issue, { subject, title, grade, year, semester, teacher, uploader, pdfUrl });
     } else if (action.toLowerCase() === 'd') {
         await rejectSubmission(issue);
     } else {
@@ -456,16 +469,23 @@ async function acceptSubmission(issue, info) {
     let subjectEntry = subjects.find(s => s.name === info.subject);
     if (!subjectEntry) {
         console.log(`  📖 科目 "${info.subject}" 不存在，将自动创建`);
+        // 如果提交中有年级信息，自动填入
+        const grade = info.grade || await question('  请输入该科目的年级 (1-大一 2-大二 3-大三 4-大四): ');
+        const gradeMap = { '1': '大一', '2': '大二', '3': '大三', '4': '大四' };
+        const finalGrade = gradeMap[grade.trim()] || grade.trim() || '';
+
         const maxId = subjects.reduce((max, s) => Math.max(max, s.id), 0);
         subjectEntry = {
             id: maxId + 1,
             name: info.subject,
+            grade: finalGrade,
             teacher: info.teacher,
             description: '',
             created_at: new Date().toISOString().split('T')[0]
         };
         subjects.push(subjectEntry);
         writeJSON(SUBJECTS_FILE, subjects);
+        console.log(`  ✅ 自动创建科目: ${info.subject} (${finalGrade})`);
     }
 
     const maxId = papers.reduce((max, p) => Math.max(max, p.id), 0);
