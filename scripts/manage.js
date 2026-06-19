@@ -293,7 +293,7 @@ function githubAPI(method, path, body) {
     return new Promise((resolve, reject) => {
         const options = {
             hostname: 'api.github.com',
-            path: `/repos/${GITHUB_OWNER}/${GITHUB_REPO}${path}`,
+            path: encodeURI(`/repos/${GITHUB_OWNER}/${GITHUB_REPO}${path}`),
             method: method,
             headers: {
                 'Authorization': `token ${GITHUB_TOKEN}`,
