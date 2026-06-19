@@ -1,0 +1,207 @@
+/* Tus - 公告样式 */
+
+/* —— 遮罩层 —— */
+.announcement-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(30, 26, 22, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: overlay-fade-in 0.45s ease;
+}
+
+@keyframes overlay-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* —— 卡片 —— */
+.announcement-card {
+    background: #fcfaf7;
+    max-width: 620px;
+    width: 100%;
+    max-height: 82vh;
+    overflow-y: auto;
+    border-radius: 18px;
+    box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.18),
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+    padding: 48px 48px 36px;
+    position: relative;
+    animation: card-slide-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes card-slide-in {
+    from { transform: translateY(36px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* —— 顶部装饰线 —— */
+.announcement-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 48px;
+    right: 48px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #b8a088, transparent);
+    border-radius: 0 0 2px 2px;
+}
+
+/* —— 标题区 —— */
+.announcement-header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid #ece6de;
+}
+
+.announcement-date {
+    font-size: 12px;
+    color: #9e9488;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+}
+
+.announcement-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #3d3430;
+    letter-spacing: 10px;
+    font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+}
+
+/* —— 正文 —— */
+.announcement-body {
+    font-size: 15px;
+    line-height: 2;
+    color: #4a4038;
+    font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+}
+
+.announcement-body p {
+    margin-bottom: 16px;
+    text-indent: 2em;
+}
+
+.announcement-body a {
+    color: #9a7b4a;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: #d0c0a8;
+    transition: color 0.2s;
+}
+
+.announcement-body a:hover {
+    color: #7a5f38;
+}
+
+/* —— 落款 —— */
+.announcement-signature {
+    text-align: right;
+    margin-top: 28px;
+    padding-top: 18px;
+    color: #7a7068;
+    letter-spacing: 2px;
+    border-top: 1px dashed #e0d8d0;
+    font-family: 'Noto Serif SC', 'STKaiti', serif;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* —— 按钮区 —— */
+.announcement-footer {
+    text-align: center;
+    margin-top: 28px;
+}
+
+.announcement-btn {
+    display: inline-block;
+    padding: 10px 56px;
+    background: #3d3430;
+    color: #f0ece6;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    letter-spacing: 6px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'Noto Serif SC', 'SimSun', serif;
+    line-height: 1.6;
+}
+
+.announcement-btn:hover {
+    background: #5a5048;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(61, 52, 48, 0.2);
+}
+
+.announcement-btn:active {
+    transform: translateY(0);
+}
+
+/* —— 导航栏公告入口 —— */
+.nav-announcement {
+    font-size: 12px;
+    color: #a09888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    text-decoration: none;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    user-select: none;
+}
+
+.nav-announcement:hover {
+    color: #5a5048;
+}
+
+/* —— 卡片滚动条 —— */
+.announcement-card::-webkit-scrollbar { width: 4px; }
+.announcement-card::-webkit-scrollbar-track { background: transparent; }
+.announcement-card::-webkit-scrollbar-thumb { background: #d0c8be; border-radius: 2px; }
+
+/* ========== 平板 / 手机 ========== */
+@media (max-width: 640px) {
+    .announcement-overlay { padding: 12px; }
+
+    .announcement-card {
+        padding: 32px 24px 28px;
+        border-radius: 14px;
+        max-height: 86vh;
+    }
+
+    .announcement-card::before {
+        left: 24px;
+        right: 24px;
+    }
+
+    .announcement-title {
+        font-size: 22px;
+        letter-spacing: 6px;
+    }
+
+    .announcement-body {
+        font-size: 14px;
+        line-height: 1.9;
+    }
+
+    .announcement-body p {
+        text-indent: 2em;
+    }
+
+    .announcement-btn {
+        padding: 10px 40px;
+        letter-spacing: 4px;
+        width: 100%;
+    }
+}
