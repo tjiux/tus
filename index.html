@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tus - 北工大试卷共享</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="." class="text-2xl font-bold text-blue-600">Tus</a>
+            <div class="flex gap-3">
+                <a href="create-subject.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">+ 新建科目</a>
+                <a href="upload.html" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">上传试卷</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <!-- 标题 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">📚 北工大试卷共享库</h1>
+            <p class="text-gray-500 mt-2">北京工业大学 · 历年期中期末试题 · 同学们一起努力</p>
+        </div>
+
+        <!-- 搜索 -->
+        <div class="mb-6">
+            <input type="text" id="searchInput" placeholder="搜索科目..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+
+        <!-- 科目网格 -->
+        <div id="subjectsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- 由 JS 动态渲染 -->
+        </div>
+
+        <!-- 加载状态 -->
+        <div id="loadingState" class="text-center py-20">
+            <div class="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p class="text-gray-400">加载中...</p>
+        </div>
+
+        <!-- 空状态 -->
+        <div id="emptyState" class="text-center py-20 hidden">
+            <div class="text-6xl mb-4">📭</div>
+            <p class="text-gray-500 text-lg">还没有科目</p>
+            <p class="text-gray-400 mt-2">点击右上角「新建科目」开始吧！</p>
+        </div>
+
+        <!-- 错误状态 -->
+        <div id="errorState" class="text-center py-20 hidden">
+            <div class="text-6xl mb-4">😵</div>
+            <p class="text-red-500 text-lg">加载失败</p>
+            <p class="text-gray-400 mt-2" id="errorMessage">请检查网络连接后刷新页面</p>
+            <button onclick="location.reload()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">刷新重试</button>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="text-center py-6 text-gray-400 text-sm">
+        <p>Tus - 北京工业大学试卷共享平台</p>
+    </footer>
+
+    <script src="js/api-client.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>
