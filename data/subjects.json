@@ -2,9 +2,9 @@
     {
         "id": 1,
         "name": "高等数学",
+        "grade": "大一",
         "teacher": "",
         "description": "",
-        "paperCount": 0,
         "created_at": "2025-09-01"
     }
 ]
