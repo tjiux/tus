@@ -40,7 +40,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
 
-            subjectTitle.textContent = subject.name;
+            const gradeTag = subject.grade ? `<span class="text-sm bg-purple-100 text-purple-700 px-2 py-0.5 rounded ml-2">${subject.grade}</span>` : '';
+            subjectTitle.innerHTML = `${subject.name}${gradeTag}`;
             subjectTeacher.textContent = subject.teacher ? `👨‍🏫 ${subject.teacher}` : '';
             subjectDescription.textContent = subject.description || '';
 
