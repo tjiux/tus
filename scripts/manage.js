@@ -363,7 +363,7 @@ async function reviewSubmissions() {
         console.log(`  [${i + 1}] #${issue.number} ${issue.title}`);
         console.log(`      提交者: ${issue.user?.login || '未知'}`);
         console.log(`      时间: ${new Date(issue.created_at).toLocaleString('zh-CN')}`);
-        console.log(`      链接: ${issue.html_url}`);
+        console.log(`      🔗 Issue链接: ${issue.html_url}`);
         console.log('');
     }
 
@@ -418,7 +418,11 @@ async function handleSubmission(issue) {
     console.log(`    年份: ${year} | 学期: ${semester}`);
     if (teacher) console.log(`    教师: ${teacher}`);
     console.log(`    提交者: ${uploader}`);
-    if (repoPath) console.log(`    仓库路径: ${repoPath}`);
+    if (repoPath) {
+        console.log(`    仓库路径: ${repoPath}`);
+        const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${repoPath}`;
+        console.log(`    🔗 直接打开: ${rawUrl}`);
+    }
     if (pdfUrl) console.log(`    PDF链接: ${pdfUrl}`);
 
     console.log('');
