@@ -7,27 +7,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gradient-to-br from-slate-50 to-stone-50 min-h-screen">
     <!-- 导航栏 -->
-    <nav class="bg-white shadow-sm border-b">
+    <nav class="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="." class="text-2xl font-bold text-blue-600">Tus</a>
-            <div class="flex gap-3">
-                <a href="create-subject.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">+ 新建科目</a>
-                <a href="upload.html" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">管理员上传</a>
+            <a href="." class="text-2xl font-bold text-slate-800 tracking-tight">Tus</a>
+            <div class="flex gap-2">
+                <a href="create-subject.html" class="bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-800 text-sm font-medium transition-colors">+ 新建科目</a>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-2xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">📤 提交试卷</h1>
-        <p class="text-gray-500 mb-6">分享你手中的试题，帮助同学们一起备考！提交后管理员会审核上线。</p>
+    <main class="max-w-2xl mx-auto px-4 py-10">
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">📤 提交试卷</h1>
+        <p class="text-slate-400 mb-8">分享你手中的试题，帮助同学们一起备考！提交后管理员会审核上线。</p>
 
-        <form id="submitForm" class="bg-white rounded-xl shadow-sm p-6 space-y-4">
+        <form id="submitForm" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 space-y-5">
             <!-- 科目 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">所属科目 *</label>
-                <select id="paperSubject" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">所属科目 *</label>
+                <select id="paperSubject" required class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-slate-700">
                     <option value="">请选择科目...</option>
                     <option value="高等数学">高等数学</option>
                     <option value="线性代数">线性代数</option>
@@ -43,15 +42,15 @@
 
             <!-- 其它科目 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">或者输入其它科目名称</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">或者输入其它科目名称</label>
                 <input type="text" id="paperSubjectOther" placeholder="如果上面没有你的科目，请在这里填写"
-                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-slate-700 placeholder:text-slate-400">
             </div>
 
             <!-- 年级 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">适用年级 *</label>
-                <select id="paperGrade" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">适用年级 *</label>
+                <select id="paperGrade" required class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-slate-700">
                     <option value="">请选择年级...</option>
                     <option value="大一">大一</option>
                     <option value="大二">大二</option>
@@ -62,96 +61,98 @@
 
             <!-- 试卷标题 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">试卷标题 *</label>
-                <input type="text" id="paperTitle" required placeholder="例如：2024秋高等数学期末试卷"
-                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">试卷标题 *</label>
+                <input type="text" id="paperTitle" required placeholder="例如：2024秋高等数学期末考试"
+                    class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-slate-700 placeholder:text-slate-400">
             </div>
 
             <!-- 年份 + 学期 -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">年份 *</label>
-                    <select id="paperYear" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></select>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">年份 *</label>
+                    <select id="paperYear" required class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-slate-700"></select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">学期 *</label>
-                    <select id="paperSemester" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <option value="期末">期末</option>
-                        <option value="期中">期中</option>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">学期 *</label>
+                    <select id="paperSemester" required class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-slate-700">
+                        <option value="上学期期末">上学期期末</option>
+                        <option value="上学期期中">上学期期中</option>
+                        <option value="下学期期末">下学期期末</option>
+                        <option value="下学期期中">下学期期中</option>
                     </select>
                 </div>
             </div>
 
             <!-- 教师 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">授课教师（选填）</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">授课教师（选填）</label>
                 <input type="text" id="paperTeacher" placeholder="例如：张老师"
-                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-slate-700 placeholder:text-slate-400">
             </div>
 
             <!-- 你的名字 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">你的名字（选填）</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">你的名字（选填）</label>
                 <input type="text" id="paperUploader" placeholder="显示在试卷信息中"
-                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-slate-700 placeholder:text-slate-400">
             </div>
 
             <!-- PDF 文件 -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">PDF 试卷文件 *</label>
-                <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 transition-colors">
-                    <div class="text-4xl mb-2">📄</div>
-                    <p class="text-gray-500">点击选择或拖拽 PDF 文件</p>
-                    <p class="text-gray-400 text-sm mt-1">支持 PDF 格式，最大 10MB</p>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">PDF 试卷文件 *</label>
+                <div id="dropZone" class="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center cursor-pointer hover:border-amber-300 hover:bg-amber-50/30 transition-colors">
+                    <div class="text-4xl mb-2 opacity-70">📄</div>
+                    <p class="text-slate-500">点击选择或拖拽 PDF 文件</p>
+                    <p class="text-slate-400 text-sm mt-1">支持 PDF 格式，最大 10MB</p>
                 </div>
                 <input type="file" id="fileInput" accept=".pdf" class="hidden">
-                <div id="fileInfo" class="hidden mt-2 p-3 bg-blue-50 rounded-lg flex items-center justify-between">
+                <div id="fileInfo" class="hidden mt-2 p-3 bg-amber-50 rounded-xl flex items-center justify-between border border-amber-100">
                     <div>
-                        <span id="fileName" class="text-sm font-medium text-blue-800"></span>
-                        <span id="fileSize" class="text-sm text-blue-600 ml-2"></span>
+                        <span id="fileName" class="text-sm font-medium text-amber-800"></span>
+                        <span id="fileSize" class="text-sm text-amber-600 ml-2"></span>
                     </div>
-                    <button type="button" id="removeFile" class="text-red-500 hover:text-red-700 text-sm">移除</button>
+                    <button type="button" id="removeFile" class="text-slate-400 hover:text-red-500 text-sm transition-colors">移除</button>
                 </div>
             </div>
 
             <!-- 提交按钮 -->
-            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50" disabled>
+            <button type="submit" id="submitBtn" class="w-full bg-slate-800 text-white py-3.5 rounded-xl hover:bg-slate-700 font-medium disabled:opacity-40 transition-colors" disabled>
                 提交试卷
             </button>
         </form>
 
         <!-- 提交进度 -->
-        <div id="progressOverlay" class="hidden fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-            <div class="bg-white rounded-xl p-8 text-center max-w-sm">
-                <div id="progressSpinner" class="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p id="progressText" class="text-gray-600 font-medium">正在提交...</p>
+        <div id="progressOverlay" class="hidden fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 text-center max-w-sm shadow-xl">
+                <div id="progressSpinner" class="animate-spin h-8 w-8 border-2 border-slate-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p id="progressText" class="text-slate-600 font-medium">正在提交...</p>
             </div>
         </div>
 
         <!-- 提交成功 -->
-        <div id="successModal" class="hidden fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-            <div class="bg-white rounded-xl p-8 text-center max-w-sm">
-                <div class="text-6xl mb-4">🎉</div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">提交成功！</h3>
-                <p class="text-gray-500 mb-2">感谢你的分享！</p>
-                <p class="text-gray-400 text-sm mb-4">管理员审核后会尽快上线试卷</p>
-                <a href="." class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">返回首页</a>
+        <div id="successModal" class="hidden fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 text-center max-w-sm shadow-xl">
+                <div class="text-5xl mb-4">🎉</div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">提交成功！</h3>
+                <p class="text-slate-500 mb-2">感谢你的分享！</p>
+                <p class="text-slate-400 text-sm mb-6">管理员审核后会尽快上线试卷</p>
+                <a href="." class="inline-block bg-slate-800 text-white px-8 py-3 rounded-xl hover:bg-slate-700 transition-colors font-medium">返回首页</a>
             </div>
         </div>
 
         <!-- 提交失败 -->
-        <div id="errorModal" class="hidden fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-            <div class="bg-white rounded-xl p-8 text-center max-w-sm">
-                <div class="text-6xl mb-4">😵</div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">提交失败</h3>
-                <p id="errorText" class="text-gray-500 mb-4">请稍后重试</p>
-                <button onclick="location.reload()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">刷新重试</button>
+        <div id="errorModal" class="hidden fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 text-center max-w-sm shadow-xl">
+                <div class="text-5xl mb-4">😵</div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">提交失败</h3>
+                <p id="errorText" class="text-slate-500 mb-6">请稍后重试</p>
+                <button onclick="location.reload()" class="bg-slate-800 text-white px-8 py-3 rounded-xl hover:bg-slate-700 transition-colors font-medium">刷新重试</button>
             </div>
         </div>
     </main>
 
-    <footer class="text-center py-6 text-gray-400 text-sm">
-        <p>Tus - 北京工业大学试卷共享平台</p>
+    <footer class="text-center py-8 text-slate-400 text-xs">
+        <p>Tus · 北京工业大学试卷共享平台</p>
     </footer>
 
     <script src="js/submit.js"></script>
