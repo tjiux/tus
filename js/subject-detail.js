@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 ? `<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full ml-2 font-medium">${subject.grade}</span>`
                 : '';
             subjectTitle.innerHTML = `${subject.name}${gradeTag}`;
-            subjectTeacher.textContent = subject.teacher ? `👨‍🏫 ${subject.teacher}` : '';
+            subjectTeacher.textContent = subject.teacher || '';
             subjectDescription.textContent = subject.description || '';
 
             allPapers = papers;
@@ -78,14 +78,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             '下学期期中': 'bg-sky-100 text-sky-700',
             '下学期期末': 'bg-violet-100 text-violet-700',
         };
-        const colors = map[semester] || 'bg-slate-100 text-slate-600';
+        const colors = map[semester] || 'bg-stone-100 text-stone-600';
         return `<span class="text-xs ${colors} px-2 py-0.5 rounded-full font-medium">${semester}</span>`;
     }
 
     function renderPapers(papers) {
         if (papers.length === 0) {
             papersContainer.innerHTML = `
-                <div class="text-center py-10 text-slate-400">
+                <div class="text-center py-10 text-stone-400">
                     没有匹配的试卷
                 </div>`;
             return;
@@ -106,21 +106,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             const downloadName = paper.file_name || `paper.${ext === 'doc' || ext === 'docx' ? 'docx' : 'pdf'}`;
 
             return `
-                <div class="paper-card bg-white rounded-xl shadow-sm p-5 border border-slate-100 flex items-center justify-between">
+                <div class="paper-card bg-white rounded-xl shadow-sm p-5 border border-stone-100 flex items-center justify-between">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-2 flex-wrap">
-                            <h3 class="font-medium text-slate-800 truncate">${escapeHtml(paper.title)}</h3>
+                            <h3 class="font-medium text-stone-800 truncate">${escapeHtml(paper.title)}</h3>
                             ${semesterBadge}
                             ${gradeBadge}
                         </div>
-                        <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-400">
-                            <span>📅 ${paper.year}年</span>
-                            <span>📎 ${fileSize}</span>
-                            <span>👤 ${escapeHtml(paper.uploaded_by || '匿名')}</span>
+                        <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-stone-400">
+                            <span>${paper.year}年</span>
+                            <span>${fileSize}</span>
+                            <span>${escapeHtml(paper.uploaded_by || '匿名')}</span>
                         </div>
                     </div>
                     <a href="${fileUrl}" download="${escapeHtml(downloadName)}"
-                       class="ml-4 px-5 py-2 bg-slate-800 text-white rounded-xl hover:bg-slate-700 text-sm whitespace-nowrap font-medium transition-colors">
+                       class="ml-4 px-5 py-2 bg-stone-800 text-white rounded-xl hover:bg-stone-700 text-sm whitespace-nowrap font-medium transition-colors">
                         下载
                     </a>
                 </div>`;
