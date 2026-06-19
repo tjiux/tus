@@ -16,10 +16,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     gradeBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             gradeBtns.forEach(b => {
-                b.className = 'grade-btn px-4 py-2 rounded-lg text-sm font-medium border transition-colors ' +
+                b.className = 'grade-btn px-5 py-2 rounded-full text-sm font-medium border transition-all shadow-sm ' +
                     (b === this
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50');
+                        ? 'bg-slate-800 text-white border-slate-800'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:text-slate-700');
             });
             activeGrade = this.dataset.grade;
             applyFilters();
