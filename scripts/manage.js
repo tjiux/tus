@@ -456,13 +456,19 @@ async function acceptSubmission(issue, info) {
             const stats = fs.statSync(destPath);
             console.log(`  ✅ PDF 已移动到: assets/papers/${fileName} (${formatSize(stats.size)})`);
         } else {
-            console.log(`  ⚠️ pending 目录未找到文件, 尝试从 raw 链接下载`);
-            const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${info.repoPath}`;
+            console.log(`  ⚠️ pending 目录未找到文件, 通过 GitHub API 下载`);
             try {
                 const destPath = path.join(papersDir, fileName);
-                await downloadFile(rawUrl, destPath);
-                const stats = fs.statSync(destPath);
-                console.log(`  ✅ PDF 已下载: assets/papers/${fileName} (${formatSize(stats.size)})`);
+                // 使用 GitHub API 下载（比 raw.githubusercontent.com 更稳定）
+                const result = await githubAPI('GET', `/contents/${info.repoPath}`);
+                if (result.status === 200 && result.data.content) {
+                    const buffer = Buffer.from(result.data.content, 'base64');
+                    fs.writeFileSync(destPath, buffer);
+                    const stats = fs.statSync(destPath);
+                    console.log(`  ✅ PDF 已保存: assets/papers/${fileName} (${formatSize(stats.size)})`);
+                } else {
+                    throw new Error(result.data?.message || 'API 返回异常');
+                }
             } catch (e2) {
                 console.log(`  ⚠️ 下载失败: ${e2.message}`);
                 const manual = await question('  是否手动放置 PDF 后继续? (y/N): ');
