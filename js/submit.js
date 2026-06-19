@@ -121,7 +121,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     fileInput.addEventListener('change', (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
 
     function handleFile(file) {
-        if (!file.name.toLowerCase().endsWith('.pdf')) { alert('只支持 PDF 格式'); return; }
+        const name = file.name.toLowerCase();
+        if (!name.endsWith('.pdf') && !name.endsWith('.doc') && !name.endsWith('.docx')) {
+            alert('只支持 PDF 或 Word（.doc/.docx）格式');
+            return;
+        }
         if (file.size > 10 * 1024 * 1024) { alert('文件大小超过 10MB 限制'); return; }
         selectedFile = file;
         fileName.textContent = file.name;
@@ -205,10 +209,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // ========== 上传 PDF 到 GitHub 仓库 ==========
 async function uploadToGitHubRepo(file) {
-    // 生成唯一文件名：时间戳-原文件名
+    // 生成唯一文件名：时间戳-文件名（仅保留 ASCII 字符，避免 CDN 无法访问）
     const timestamp = Date.now();
-    const safeName = file.name.replace(/[^a-zA-Z0-9一-龥._-]/g, '_');
-    const repoPath = `assets/papers/pending/${timestamp}-${safeName}`;
+    const asciiName = file.name.replace(/[^\x00-\x7F]/g, '').replace(/[^a-zA-Z0-9._-]/g, '_') || 'file';
+    const safeName = `${timestamp}-${asciiName}`;
+    const repoPath = `assets/papers/pending/${safeName}`;
 
     // 读取文件内容为 Base64
     const reader = new FileReader();
@@ -241,8 +246,8 @@ async function uploadToGitHubRepo(file) {
         throw new Error(err.message || `文件上传失败 (${response.status})`);
     }
 
-    // 返回仓库路径和原始文件 URL
-    const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${repoPath}`;
+    // 返回仓库路径和文件 URL（使用 jsDelivr CDN，国内友好）
+    const rawUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodeURI(repoPath)}`;
     return { repoPath, rawUrl };
 }
 
