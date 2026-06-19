@@ -394,9 +394,12 @@ async function handleSubmission(issue) {
         fields[match[1].trim()] = match[2].trim();
     }
 
-    // 提取 PDF 链接
-    const urlRegex = /\[点击下载 PDF 文件\]\((https?:\/\/[^\s)]+)\)/;
+    // 提取 PDF 链接或仓库路径
+    const urlRegex = /\[下载 PDF 文件\]\((https?:\/\/[^\s)]+)\)/;
     const urlMatch = body.match(urlRegex);
+    // 提取仓库路径
+    const repoPathRegex = /仓库路径:\s*`(assets\/papers\/pending\/[^`]+)`/;
+    const repoPathMatch = body.match(repoPathRegex);
 
     const subject = fields['科目'] || '未知科目';
     const title = fields['标题'] || issue.title.replace('[新试卷] ', '');
@@ -406,6 +409,7 @@ async function handleSubmission(issue) {
     const teacher = fields['教师'] || '';
     const uploader = fields['提交者'] || '热心同学';
     const pdfUrl = urlMatch ? urlMatch[1] : '';
+    const repoPath = repoPathMatch ? repoPathMatch[1] : '';
 
     console.log(`\n  试卷信息:`);
     console.log(`    科目: ${subject}`);
@@ -414,13 +418,14 @@ async function handleSubmission(issue) {
     console.log(`    年份: ${year} | 学期: ${semester}`);
     if (teacher) console.log(`    教师: ${teacher}`);
     console.log(`    提交者: ${uploader}`);
-    if (pdfUrl) console.log(`    PDF: ${pdfUrl}`);
+    if (repoPath) console.log(`    仓库路径: ${repoPath}`);
+    if (pdfUrl) console.log(`    PDF链接: ${pdfUrl}`);
 
     console.log('');
     const action = await question('  操作: [a]接受并添加 [d]拒绝并关闭 [s]跳过 (a/d/s): ');
 
     if (action.toLowerCase() === 'a') {
-        await acceptSubmission(issue, { subject, title, grade, year, semester, teacher, uploader, pdfUrl });
+        await acceptSubmission(issue, { subject, title, grade, year, semester, teacher, uploader, pdfUrl, repoPath });
     } else if (action.toLowerCase() === 'd') {
         await rejectSubmission(issue);
     } else {
@@ -429,13 +434,43 @@ async function handleSubmission(issue) {
 }
 
 async function acceptSubmission(issue, info) {
-    // 1. 下载 PDF
+    // 1. 获取 PDF 文件
     let fileName = '';
-    if (info.pdfUrl) {
-        // 从 URL 提取文件名
-        const ext = '.pdf';
-        fileName = `${info.title.replace(/[\\/:*?"<>|]/g, '_')}${ext}`;
-        const destPath = path.join(__dirname, '..', 'assets', 'papers', fileName);
+    const pendingDir = path.join(__dirname, '..', 'assets', 'papers', 'pending');
+    const papersDir = path.join(__dirname, '..', 'assets', 'papers');
+
+    // 情况1: 文件在仓库 pending 目录中
+    if (info.repoPath) {
+        const pendingFile = path.join(__dirname, '..', info.repoPath);
+        fileName = `${info.title.replace(/[\\/:*?"<>|]/g, '_')}.pdf`;
+
+        if (fs.existsSync(pendingFile)) {
+            console.log(`  📄 在 pending 目录找到文件`);
+            // 移动到正式目录
+            const destPath = path.join(papersDir, fileName);
+            fs.renameSync(pendingFile, destPath);
+            const stats = fs.statSync(destPath);
+            console.log(`  ✅ PDF 已移动到: assets/papers/${fileName} (${formatSize(stats.size)})`);
+        } else {
+            console.log(`  ⚠️ pending 目录未找到文件, 尝试从 raw 链接下载`);
+            const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${info.repoPath}`;
+            try {
+                const destPath = path.join(papersDir, fileName);
+                await downloadFile(rawUrl, destPath);
+                const stats = fs.statSync(destPath);
+                console.log(`  ✅ PDF 已下载: assets/papers/${fileName} (${formatSize(stats.size)})`);
+            } catch (e2) {
+                console.log(`  ⚠️ 下载失败: ${e2.message}`);
+                const manual = await question('  是否手动放置 PDF 后继续? (y/N): ');
+                if (manual.toLowerCase() !== 'y') { console.log('  已取消'); return; }
+                fileName = await question('  输入 PDF 文件名 (放在 assets/papers/ 下): ');
+            }
+        }
+    }
+    // 情况2: 有 PDF 链接
+    else if (info.pdfUrl) {
+        fileName = `${info.title.replace(/[\\/:*?"<>|]/g, '_')}.pdf`;
+        const destPath = path.join(papersDir, fileName);
 
         console.log(`  📥 正在下载 PDF...`);
         try {
@@ -445,10 +480,7 @@ async function acceptSubmission(issue, info) {
         } catch (e) {
             console.log(`  ⚠️ PDF 下载失败: ${e.message}`);
             const manual = await question('  是否手动放置 PDF 后继续? (y/N): ');
-            if (manual.toLowerCase() !== 'y') {
-                console.log('  已取消');
-                return;
-            }
+            if (manual.toLowerCase() !== 'y') { console.log('  已取消'); return; }
             fileName = await question('  输入 PDF 文件名 (放在 assets/papers/ 下): ');
         }
     } else {
