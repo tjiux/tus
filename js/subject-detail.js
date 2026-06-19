@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                             <span>📥 ${paper.download_count || 0} 次下载</span>
                         </div>
                     </div>
-                    <a href="${fileUrl}" target="_blank"
+                    <a href="${fileUrl}" download="${escapeHtml(paper.file_name || 'paper.pdf')}"
                        class="ml-4 px-5 py-2 bg-slate-800 text-white rounded-xl hover:bg-slate-700 text-sm whitespace-nowrap font-medium transition-colors">
                         下载
                     </a>
