@@ -270,9 +270,10 @@ async function createIssue(subject, title, grade, year, semester, teacher, uploa
     body += `\n---\n`;
     if (rawUrl) {
         const isWord = repoPath.endsWith('.doc') || repoPath.endsWith('.docx');
+        const encodedPath = encodeURI(repoPath);
         const previewUrl = isWord
             ? `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawUrl)}`
-            : `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/blob/main/${encodeURI(repoPath)}`;
+            : `https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodedPath}`;
         body += `\n### 📎 试卷文件\n`;
         body += `\n📁 仓库路径: \`${repoPath}\`\n`;
         body += `\n👁️ [在线预览](${previewUrl})\n`;
