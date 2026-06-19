@@ -1,0 +1,101 @@
+name: 提交试卷
+description: 分享你的期中/期末试卷，帮助同学们一起复习
+title: "[新试卷] "
+labels: ["待审核"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        📚 感谢你分享试卷！请填写以下信息。
+
+  - type: dropdown
+    id: subject
+    attributes:
+      label: 所属科目
+      description: 选择试卷对应的科目
+      options:
+        - 高等数学
+        - 线性代数
+        - 大学物理
+        - 概率论与数理统计
+        - 程序设计基础
+        - 数据结构
+        - 操作系统
+        - 计算机网络
+        - 数据库原理
+        - 其它（请在下方注明）
+    validations:
+      required: true
+
+  - type: input
+    id: subject-other
+    attributes:
+      label: 其它科目名称
+      description: 如果上边没有你的科目，请在这里填写
+    validations:
+      required: false
+
+  - type: input
+    id: title
+    attributes:
+      label: 试卷标题
+      description: 例如：2024秋高等数学期末试卷
+      placeholder: 2024秋高等数学期末试卷
+    validations:
+      required: true
+
+  - type: dropdown
+    id: year
+    attributes:
+      label: 年份
+      options:
+        - 2026
+        - 2025
+        - 2024
+        - 2023
+        - 2022
+        - 2021
+        - 2020
+        - 更早
+    validations:
+      required: true
+
+  - type: dropdown
+    id: semester
+    attributes:
+      label: 学期
+      options:
+        - 期末
+        - 期中
+    validations:
+      required: true
+
+  - type: input
+    id: teacher
+    attributes:
+      label: 授课教师（选填）
+      description: 例如：张老师
+    validations:
+      required: false
+
+  - type: input
+    id: uploader
+    attributes:
+      label: 你的名字（选填）
+      description: 会显示在试卷信息中
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 备注（选填）
+      description: 试卷说明、考试范围等
+
+  - type: markdown
+    attributes:
+      value: |
+        ### 📎 如何上传PDF文件
+        1. 创建 Issue 后，把 PDF 文件**拖拽到这个页面**（GitHub 会自动上传）
+        2. 或者先把 PDF 发到管理员邮箱，管理员会帮你添加
