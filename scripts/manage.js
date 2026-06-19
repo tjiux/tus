@@ -466,11 +466,8 @@ async function handleSubmission(issue) {
     console.log(`    提交者: ${uploader}`);
     if (repoPath) {
         console.log(`    仓库路径: ${repoPath}`);
-        const ext = path.extname(repoPath).toLowerCase();
         const encodedPath = encodeURI(repoPath);
-        const isWord = ext === '.doc' || ext === '.docx';
-        // jsDelivr 支持 PDF 但不支持 Word，Word 文件用原始链接
-        console.log(`    🔗 国内加速${isWord ? '(仅PDF)' : ''}: https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodedPath}`);
+        console.log(`    🔗 在线预览: https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/blob/main/${encodedPath} (PDF/Word 可直接看)`);
         console.log(`    🔗 原始下载: https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${encodedPath}`);
     }
     if (pdfUrl) console.log(`    PDF链接: ${pdfUrl}`);
