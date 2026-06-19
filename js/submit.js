@@ -185,12 +185,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             // 1. 上传 PDF 到 GitHub 仓库
             progressText.textContent = '正在上传文件...';
-            const { repoPath, rawUrl } = await uploadToGitHubRepo(selectedFile);
+            const { repoPath, cdnUrl, rawUrl } = await uploadToGitHubRepo(selectedFile);
 
             progressText.textContent = '正在提交到审核队列...';
 
             // 2. 创建 GitHub Issue（含文件引用）
-            const issueUrl = await createIssue(subject, title, grade, year, semester, teacher, uploader, repoPath, rawUrl, selectedFile.name);
+            const issueUrl = await createIssue(subject, title, grade, year, semester, teacher, uploader, repoPath, cdnUrl, rawUrl, selectedFile.name);
 
             // 3. 成功！
             progressOverlay.classList.add('hidden');
@@ -246,13 +246,15 @@ async function uploadToGitHubRepo(file) {
         throw new Error(err.message || `文件上传失败 (${response.status})`);
     }
 
-    // 返回仓库路径和文件 URL（使用 jsDelivr CDN，国内友好）
-    const rawUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodeURI(repoPath)}`;
-    return { repoPath, rawUrl };
+    // 返回仓库路径和文件 URL（jsDelivr 国内加速，Word 文件可能不支持，同时返回原始链接）
+    const encodedPath = encodeURI(repoPath);
+    const cdnUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodedPath}`;
+    const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${encodedPath}`;
+    return { repoPath, cdnUrl, rawUrl };
 }
 
 // ========== 创建 GitHub Issue（直接 API） ==========
-async function createIssue(subject, title, grade, year, semester, teacher, uploader, repoPath, rawUrl, pdfName) {
+async function createIssue(subject, title, grade, year, semester, teacher, uploader, repoPath, cdnUrl, rawUrl, pdfName) {
     const issueTitle = `[新试卷] ${title}（${subject}·${grade}·${semester}）`;
 
     let body = `### 📋 试卷信息\n\n`;
@@ -267,10 +269,11 @@ async function createIssue(subject, title, grade, year, semester, teacher, uploa
     body += `| **提交者** | ${uploader} |\n`;
     body += `| **文件名** | ${pdfName} |\n`;
     body += `\n---\n`;
-    if (rawUrl) {
-        body += `\n### 📎 PDF 文件\n`;
+    if (cdnUrl) {
+        body += `\n### 📎 试卷文件\n`;
         body += `\n📁 仓库路径: \`${repoPath}\`\n`;
-        body += `\n🔗 [查看 PDF 文件](${rawUrl})\n`;
+        body += `\n🔗 [国内加速查看](${cdnUrl})\n`;
+        body += `\n🔗 [原始下载](${rawUrl})\n`;
     }
     body += `\n> 文件已保存在仓库中，审核通过后移至正式目录。\n`;
     body += `\n---\n*由 Tus 提交系统自动创建*`;
