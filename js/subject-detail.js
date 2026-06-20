@@ -82,6 +82,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         return '<span class="text-xs ' + colors + ' px-2 py-0.5 rounded-full font-medium">' + escapeHtml(semester) + '</span>';
     }
 
+    function getYearBadge(year) {
+        var y = parseInt(year);
+        var now = new Date().getFullYear();
+        var diff = now - y;
+        var colors;
+        if (diff === 0) colors = 'bg-rose-100 text-rose-700';
+        else if (diff === 1) colors = 'bg-amber-100 text-amber-700';
+        else if (diff === 2) colors = 'bg-sky-100 text-sky-700';
+        else colors = 'bg-stone-100 text-stone-500';
+        return '<span class="text-xs ' + colors + ' px-2 py-0.5 rounded-full font-medium">' + y + '年</span>';
+    }
+
     function renderPapers(papers) {
         if (papers.length === 0) {
             papersContainer.innerHTML = '<div class="text-center py-10 text-stone-400">没有匹配的试卷</div>';
@@ -92,6 +104,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         for (var i = 0; i < papers.length; i++) {
             var paper = papers[i];
             var semesterBadge = getSemesterBadge(paper.semester);
+            var yearBadge = getYearBadge(paper.year);
             var fileSize = formatFileSize(paper.file_size);
             var rawPath = paper.file_path || '';
             var encodedPath = encodeURI(rawPath);
@@ -103,19 +116,22 @@ document.addEventListener('DOMContentLoaded', async function() {
             var ext = (paper.file_name || rawPath).split('.').pop().toLowerCase();
             var isWord = ext === 'doc' || ext === 'docx';
             var downloadName = paper.file_name || 'paper.' + (isWord ? 'docx' : 'pdf');
+            var fileType = isWord ? 'Word' : 'PDF';
+            var setter = paper.setter || '';
 
             html += '<div class="paper-card bg-white rounded-xl shadow-sm p-4 border border-stone-100"'
                 + ' data-title="' + escapeAttr(paper.title) + '"'
                 + ' data-year="' + paper.year + '"'
                 + ' data-semester="' + escapeAttr(paper.semester) + '"'
                 + ' data-grade="' + escapeAttr(paper.grade || '') + '"'
-                + ' data-filesize="' + fileSize + '"'
+                + ' data-filesize="' + escapeAttr(fileType + ' / ' + fileSize) + '"'
                 + ' data-uploader="' + escapeAttr(paper.uploaded_by || '匿名') + '"'
+                + ' data-setter="' + escapeAttr(setter) + '"'
                 + ' data-url="' + escapeAttr(fileUrl) + '"'
                 + ' data-dlname="' + escapeAttr(downloadName) + '"'
                 + ' data-isword="' + (isWord ? '1' : '0') + '">'
                 + '<h3 class="font-medium text-stone-800">' + escapeHtml(paper.title) + '</h3>'
-                + '<div class="flex flex-wrap items-center gap-1.5 mt-1">' + semesterBadge + gradeBadge + '</div>'
+                + '<div class="flex flex-wrap items-center gap-1.5 mt-1">' + yearBadge + semesterBadge + gradeBadge + '</div>'
                 + '</div>';
         }
         papersContainer.innerHTML = html;
@@ -150,6 +166,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                         grade: card.dataset.grade,
                         fileSize: card.dataset.filesize,
                         uploaded_by: card.dataset.uploader,
+                        setter: card.dataset.setter,
                         fileUrl: card.dataset.url,
                         downloadName: card.dataset.dlname,
                         isWord: card.dataset.isword === '1'
@@ -194,6 +211,8 @@ function showPaperDetail(paper) {
         previewUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(paper.fileUrl);
     }
 
+    var setterRow = paper.setter ? '<div class="detail-row"><span class="detail-label">出卷人</span><span>' + escapeHtml(paper.setter) + '</span></div>' : '';
+
     overlay.innerHTML =
         '<div class="paper-detail-card">'
         + '<div class="detail-header">试卷信息</div>'
@@ -202,7 +221,8 @@ function showPaperDetail(paper) {
         + '<div class="detail-row"><span class="detail-label">年份</span><span>' + paper.year + '年</span></div>'
         + '<div class="detail-row"><span class="detail-label">学期</span><span>' + escapeHtml(paper.semester) + '</span></div>'
         + gradeRow
-        + '<div class="detail-row"><span class="detail-label">大小</span><span>' + paper.fileSize + '</span></div>'
+        + '<div class="detail-row"><span class="detail-label">文件</span><span>' + paper.fileSize + '</span></div>'
+        + setterRow
         + '<div class="detail-row"><span class="detail-label">上传者</span><span>' + escapeHtml(paper.uploaded_by || '匿名') + '</span></div>'
         + '</div>'
         + '<div class="detail-footer detail-footer-triple">'
