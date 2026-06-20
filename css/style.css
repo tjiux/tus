@@ -42,19 +42,9 @@ body {
     mask-image: linear-gradient(to right, black 70%, transparent 94%);
 }
 
-/* 长标题跑马灯滚动 */
-@keyframes marquee {
-    0%   { transform: translateX(0); }
-    35%  { transform: translateX(var(--marquee-offset)); }
-    55%  { transform: translateX(var(--marquee-offset)); }
-    90%  { transform: translateX(0); }
-    100% { transform: translateX(0); }
-}
-.paper-card h3.marquee {
-    animation: marquee 12s ease-in-out infinite;
-}
-.paper-card h3.marquee:hover {
-    animation-play-state: paused;
+/* 长标题跑马灯 — 用 scrollLeft 实现，mask 固定在卡片边缘不动 */
+.paper-card h3.marquee-scroll {
+    /* 仅标识，实际滚动由 JS 的 scrollLeft 驱动 */
 }
 
 /* 拖拽上传区高亮 */
