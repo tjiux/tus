@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             var isWord = ext === 'doc' || ext === 'docx';
             var downloadName = paper.file_name || 'paper.' + (isWord ? 'docx' : 'pdf');
 
-            html += '<div class="paper-card bg-white rounded-xl shadow-sm p-5 border border-stone-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mx-2 sm:mx-0"'
+            html += '<div class="paper-card bg-white rounded-xl shadow-sm p-4 border border-stone-100 mx-2 sm:mx-0"'
                 + ' data-title="' + escapeAttr(paper.title) + '"'
                 + ' data-year="' + paper.year + '"'
                 + ' data-semester="' + escapeAttr(paper.semester) + '"'
@@ -114,16 +114,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 + ' data-url="' + escapeAttr(fileUrl) + '"'
                 + ' data-dlname="' + escapeAttr(downloadName) + '"'
                 + ' data-isword="' + (isWord ? '1' : '0') + '">'
-                + '<div class="flex-1 min-w-0">'
-                + '<h3 class="font-medium text-stone-800 mb-1.5">' + escapeHtml(paper.title) + '</h3>'
-                + '<div class="flex flex-wrap items-center gap-1.5 mb-1.5">' + semesterBadge + gradeBadge + '</div>'
-                + '<div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-stone-400">'
-                + '<span>' + paper.year + '年</span>'
-                + '<span>' + fileSize + '</span>'
-                + '<span>' + escapeHtml(paper.uploaded_by || '匿名') + '</span>'
-                + '</div></div>'
-                + '<a href="' + fileUrl + '" download="' + escapeAttr(downloadName) + '"'
-                + ' class="self-end sm:self-auto mt-1 sm:mt-0 sm:ml-4 px-5 py-2 bg-stone-800 text-white rounded-xl hover:bg-stone-700 text-sm whitespace-nowrap shrink-0 font-medium transition-colors">下载</a>'
+                + '<h3 class="font-medium text-stone-800">' + escapeHtml(paper.title) + '</h3>'
+                + '<div class="flex flex-wrap items-center gap-1.5 mt-1">' + semesterBadge + gradeBadge + '</div>'
                 + '</div>';
         }
         papersContainer.innerHTML = html;
@@ -132,8 +124,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         var cards = papersContainer.querySelectorAll('.paper-card');
         for (var j = 0; j < cards.length; j++) {
             (function(card) {
-                card.addEventListener('click', function(e) {
-                    if (e.target.closest('a[download]')) return;
+                card.addEventListener('click', function() {
                     showPaperDetail({
                         title: card.dataset.title,
                         year: card.dataset.year,
