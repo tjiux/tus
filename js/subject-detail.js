@@ -120,18 +120,21 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         papersContainer.innerHTML = html;
 
-        // 长标题跑马灯 — 用 scrollLeft 所以 mask 遮罩固定在卡片边缘不动
-        setTimeout(function() {
-            var titles = papersContainer.querySelectorAll('.paper-card h3');
-            for (var t = 0; t < titles.length; t++) {
-                (function(el) {
-                    if (el.scrollWidth > el.clientWidth) {
-                        el.classList.add('marquee-scroll');
-                        startMarquee(el);
-                    }
-                })(titles[t]);
-            }
-        }, 100);
+        // 长标题跑马灯 — 双 rAF 确保布局完成后再检测
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                var titles = papersContainer.querySelectorAll('.paper-card h3');
+                for (var t = 0; t < titles.length; t++) {
+                    (function(el) {
+                        if (el.scrollWidth > el.clientWidth + 1) {
+                            el.classList.add('marquee-scroll');
+                            el.style.setProperty('--marquee-len', (el.scrollWidth - el.clientWidth) + 'px');
+                            startMarquee(el);
+                        }
+                    })(titles[t]);
+                }
+            });
+        });
 
         // 点击卡片弹出详情
         var cards = papersContainer.querySelectorAll('.paper-card');
@@ -228,45 +231,35 @@ function closePaperDetail(overlay) {
 // ========== 跑马灯滚动（scrollLeft + mask 遮罩固定不动） ==========
 function startMarquee(el) {
     if (el._marqueeActive) return;
-    var maxScroll = el.scrollWidth - el.clientWidth;
-    if (maxScroll <= 0) return;
+    var maxScroll = Math.ceil(el.scrollWidth - el.clientWidth);
+    if (maxScroll <= 1) return;
 
     el._marqueeActive = true;
-    var speed = 0.8;
+    el.scrollLeft = 0;
+
+    var speed = 1;
     var dir = 1;
     var paused = false;
-    var pauseCnt = 0;
-    var PAUSE_FRAMES = 120; // ~2s at 60fps
+    var PAUSE_MS = 2000; // 两端暂停 2 秒
 
-    function step() {
-        if (!el._marqueeActive) return;
-
-        if (paused) {
-            pauseCnt--;
-            if (pauseCnt <= 0) {
-                paused = false;
-                dir = -dir;
-            }
-            requestAnimationFrame(step);
-            return;
-        }
+    function tick() {
+        if (!el._marqueeActive || !el.isConnected) { clearInterval(el._marqueeTimer); return; }
+        if (paused) return;
 
         el.scrollLeft += speed * dir;
 
-        if (el.scrollLeft >= maxScroll) {
+        if (dir === 1 && el.scrollLeft >= maxScroll) {
             el.scrollLeft = maxScroll;
             paused = true;
-            pauseCnt = PAUSE_FRAMES;
-        } else if (el.scrollLeft <= 0) {
+            setTimeout(function() { paused = false; dir = -1; }, PAUSE_MS);
+        } else if (dir === -1 && el.scrollLeft <= 0) {
             el.scrollLeft = 0;
             paused = true;
-            pauseCnt = PAUSE_FRAMES;
+            setTimeout(function() { paused = false; dir = 1; }, PAUSE_MS);
         }
-
-        requestAnimationFrame(step);
     }
 
-    requestAnimationFrame(step);
+    el._marqueeTimer = setInterval(tick, 16); // ~60fps
 }
 
 function formatFileSize(bytes) {
