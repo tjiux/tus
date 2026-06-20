@@ -126,8 +126,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             for (var t = 0; t < titles.length; t++) {
                 (function(el) {
                     if (el.scrollWidth > el.clientWidth) {
-                        el.style.webkitMaskImage = 'none';
-                        el.style.maskImage = 'none';
+                        // 保留 mask 遮罩，文字从右侧移入时自然淡入
                         el.style.setProperty('--marquee-offset', '-' + (el.scrollWidth - el.clientWidth) + 'px');
                         el.classList.add('marquee');
                     }
