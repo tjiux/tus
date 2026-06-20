@@ -7,23 +7,8 @@
     box-sizing: border-box;
 }
 
-html {
-    width: 100%;
-    overflow-x: hidden;
-}
-
 body {
     font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
-    width: 100%;
-    overflow-x: hidden;
-}
-
-/* 容器不溢出 */
-#papersContainer,
-#subjectsContainer {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
 }
 
 /* 科目卡片动画 */
@@ -39,11 +24,6 @@ body {
 .paper-card {
     transition: all 0.2s ease;
     cursor: pointer;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    box-sizing: border-box !important;
 }
 .paper-card:active {
     background-color: #ede5dc;
@@ -54,14 +34,12 @@ body {
     }
 }
 
-/* 试卷标题截断淡出 */
+/* 试卷标题自适应淡出截断（百分比相对卡片宽度自动适配） */
 .paper-card h3 {
-    overflow: hidden !important;
-    white-space: nowrap !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    -webkit-mask-image: linear-gradient(to right, black 35%, transparent 75%) !important;
-    mask-image: linear-gradient(to right, black 35%, transparent 75%) !important;
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(to right, black 40%, transparent 72%);
+    mask-image: linear-gradient(to right, black 40%, transparent 72%);
 }
 
 /* 拖拽上传区高亮 */
@@ -101,8 +79,6 @@ body {
 @media (max-width: 640px) {
     .text-3xl { font-size: 1.5rem; }
     .text-2xl { font-size: 1.25rem; }
-    main > .px-4, main { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
-    .paper-card { padding: 0.625rem 0.75rem !important; }
 }
 
 /* 页脚置底 */
