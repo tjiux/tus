@@ -120,15 +120,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         papersContainer.innerHTML = html;
 
-        // 长标题跑马灯（仅当文字溢出时滚动）
+        // 长标题跑马灯 — 用 scrollLeft 所以 mask 遮罩固定在卡片边缘不动
         setTimeout(function() {
             var titles = papersContainer.querySelectorAll('.paper-card h3');
             for (var t = 0; t < titles.length; t++) {
                 (function(el) {
                     if (el.scrollWidth > el.clientWidth) {
-                        // 保留 mask 遮罩，文字从右侧移入时自然淡入
-                        el.style.setProperty('--marquee-offset', '-' + (el.scrollWidth - el.clientWidth) + 'px');
-                        el.classList.add('marquee');
+                        el.classList.add('marquee-scroll');
+                        startMarquee(el);
                     }
                 })(titles[t]);
             }
@@ -224,6 +223,50 @@ function closePaperDetail(overlay) {
     setTimeout(function() {
         if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
     }, 250);
+}
+
+// ========== 跑马灯滚动（scrollLeft + mask 遮罩固定不动） ==========
+function startMarquee(el) {
+    if (el._marqueeActive) return;
+    var maxScroll = el.scrollWidth - el.clientWidth;
+    if (maxScroll <= 0) return;
+
+    el._marqueeActive = true;
+    var speed = 0.8;
+    var dir = 1;
+    var paused = false;
+    var pauseCnt = 0;
+    var PAUSE_FRAMES = 120; // ~2s at 60fps
+
+    function step() {
+        if (!el._marqueeActive) return;
+
+        if (paused) {
+            pauseCnt--;
+            if (pauseCnt <= 0) {
+                paused = false;
+                dir = -dir;
+            }
+            requestAnimationFrame(step);
+            return;
+        }
+
+        el.scrollLeft += speed * dir;
+
+        if (el.scrollLeft >= maxScroll) {
+            el.scrollLeft = maxScroll;
+            paused = true;
+            pauseCnt = PAUSE_FRAMES;
+        } else if (el.scrollLeft <= 0) {
+            el.scrollLeft = 0;
+            paused = true;
+            pauseCnt = PAUSE_FRAMES;
+        }
+
+        requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
 }
 
 function formatFileSize(bytes) {
