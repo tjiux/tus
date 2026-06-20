@@ -120,6 +120,21 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         papersContainer.innerHTML = html;
 
+        // 长标题跑马灯（仅当文字溢出时滚动）
+        setTimeout(function() {
+            var titles = papersContainer.querySelectorAll('.paper-card h3');
+            for (var t = 0; t < titles.length; t++) {
+                (function(el) {
+                    if (el.scrollWidth > el.clientWidth) {
+                        el.style.webkitMaskImage = 'none';
+                        el.style.maskImage = 'none';
+                        el.style.setProperty('--marquee-offset', '-' + (el.scrollWidth - el.clientWidth) + 'px');
+                        el.classList.add('marquee');
+                    }
+                })(titles[t]);
+            }
+        }, 100);
+
         // 点击卡片弹出详情
         var cards = papersContainer.querySelectorAll('.paper-card');
         for (var j = 0; j < cards.length; j++) {
