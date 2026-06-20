@@ -44,7 +44,7 @@ body {
 
 /* 长标题跑马灯 — 用 scrollLeft 实现，mask 固定在卡片边缘不动 */
 .paper-card h3.marquee-scroll {
-    /* 仅标识，实际滚动由 JS 的 scrollLeft 驱动 */
+    scroll-behavior: auto;
 }
 
 /* 拖拽上传区高亮 */
