@@ -23,9 +23,23 @@ body {
 /* 试卷卡片 */
 .paper-card {
     transition: all 0.2s ease;
+    cursor: pointer;
 }
-.paper-card:hover {
-    background-color: #f5f0ea;
+.paper-card:active {
+    background-color: #ede5dc;
+}
+@media (hover: hover) {
+    .paper-card:hover {
+        background-color: #f5f0ea;
+    }
+}
+
+/* 试卷标题截断淡出 */
+.paper-card h3 {
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(to right, black 75%, transparent 98%);
+    mask-image: linear-gradient(to right, black 75%, transparent 98%);
 }
 
 /* 拖拽上传区高亮 */
