@@ -41,9 +41,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             const gradeTag = subject.grade
-                ? `<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full ml-2 font-medium">${subject.grade}</span>`
+                ? '<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full ml-2 font-medium">' + escapeHtml(subject.grade) + '</span>'
                 : '';
-            subjectTitle.innerHTML = `${subject.name}${gradeTag}`;
+            subjectTitle.innerHTML = escapeHtml(subject.name) + gradeTag;
             subjectTeacher.textContent = subject.teacher || '';
             subjectDescription.textContent = subject.description || '';
 
@@ -55,9 +55,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
 
-            const years = [...new Set(papers.map(p => p.year))].sort((a, b) => b - a);
+            var years = [...new Set(papers.map(function(p) { return p.year; }))].sort(function(a, b) { return b - a; });
             yearFilter.innerHTML = '<option value="">全部年份</option>' +
-                years.map(y => `<option value="${y}">${y}年</option>`).join('');
+                years.map(function(y) { return '<option value="' + y + '">' + y + '年</option>'; }).join('');
 
             renderPapers(papers);
         } catch (e) {
@@ -72,70 +72,90 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     function getSemesterBadge(semester) {
-        const map = {
+        var map = {
             '上学期期中': 'bg-amber-100 text-amber-700',
             '上学期期末': 'bg-emerald-100 text-emerald-700',
             '下学期期中': 'bg-sky-100 text-sky-700',
-            '下学期期末': 'bg-violet-100 text-violet-700',
+            '下学期期末': 'bg-violet-100 text-violet-700'
         };
-        const colors = map[semester] || 'bg-stone-100 text-stone-600';
-        return `<span class="text-xs ${colors} px-2 py-0.5 rounded-full font-medium">${semester}</span>`;
+        var colors = map[semester] || 'bg-stone-100 text-stone-600';
+        return '<span class="text-xs ' + colors + ' px-2 py-0.5 rounded-full font-medium">' + escapeHtml(semester) + '</span>';
     }
 
     function renderPapers(papers) {
         if (papers.length === 0) {
-            papersContainer.innerHTML = `
-                <div class="text-center py-10 text-stone-400">
-                    没有匹配的试卷
-                </div>`;
+            papersContainer.innerHTML = '<div class="text-center py-10 text-stone-400">没有匹配的试卷</div>';
             return;
         }
 
-        papersContainer.innerHTML = papers.map(paper => {
-            const semesterBadge = getSemesterBadge(paper.semester);
-            const fileSize = formatFileSize(paper.file_size);
-            const rawPath = paper.file_path || '';
-            const encodedPath = encodeURI(rawPath);
-            const fileUrl = paper.file_url || `${getBaseUrl()}/assets/papers/${encodedPath}`;
-            const gradeBadge = paper.grade
-                ? `<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">${paper.grade}</span>`
+        var html = '';
+        for (var i = 0; i < papers.length; i++) {
+            var paper = papers[i];
+            var semesterBadge = getSemesterBadge(paper.semester);
+            var fileSize = formatFileSize(paper.file_size);
+            var rawPath = paper.file_path || '';
+            var encodedPath = encodeURI(rawPath);
+            var fileUrl = paper.file_url || getBaseUrl() + '/assets/papers/' + encodedPath;
+            var gradeBadge = paper.grade
+                ? '<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">' + escapeHtml(paper.grade) + '</span>'
                 : '';
 
-            // 根据文件扩展名决定 download 属性值
-            const ext = (paper.file_name || rawPath).split('.').pop().toLowerCase();
-            const downloadName = paper.file_name || `paper.${ext === 'doc' || ext === 'docx' ? 'docx' : 'pdf'}`;
+            var ext = (paper.file_name || rawPath).split('.').pop().toLowerCase();
+            var downloadName = paper.file_name || 'paper.' + (ext === 'doc' || ext === 'docx' ? 'docx' : 'pdf');
 
-            return `
-                <div class="paper-card bg-white rounded-xl shadow-sm p-5 border border-stone-100 flex items-center justify-between">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-2 flex-wrap">
-                            <h3 class="font-medium text-stone-800 truncate">${escapeHtml(paper.title)}</h3>
-                            ${semesterBadge}
-                            ${gradeBadge}
-                        </div>
-                        <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-stone-400">
-                            <span>${paper.year}年</span>
-                            <span>${fileSize}</span>
-                            <span>${escapeHtml(paper.uploaded_by || '匿名')}</span>
-                        </div>
-                    </div>
-                    <a href="${fileUrl}" download="${escapeHtml(downloadName)}"
-                       class="ml-4 px-5 py-2 bg-stone-800 text-white rounded-xl hover:bg-stone-700 text-sm whitespace-nowrap font-medium transition-colors">
-                        下载
-                    </a>
-                </div>`;
-        }).join('');
+            html += '<div class="paper-card bg-white rounded-xl shadow-sm p-5 border border-stone-100 flex items-center justify-between"'
+                + ' data-title="' + escapeAttr(paper.title) + '"'
+                + ' data-year="' + paper.year + '"'
+                + ' data-semester="' + escapeAttr(paper.semester) + '"'
+                + ' data-grade="' + escapeAttr(paper.grade || '') + '"'
+                + ' data-filesize="' + fileSize + '"'
+                + ' data-uploader="' + escapeAttr(paper.uploaded_by || '匿名') + '"'
+                + ' data-url="' + escapeAttr(fileUrl) + '"'
+                + ' data-dlname="' + escapeAttr(downloadName) + '">'
+                + '<div class="flex-1 min-w-0">'
+                + '<h3 class="font-medium text-stone-800 truncate mb-1.5">' + escapeHtml(paper.title) + '</h3>'
+                + '<div class="flex flex-wrap items-center gap-1.5 mb-1.5">' + semesterBadge + gradeBadge + '</div>'
+                + '<div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-stone-400">'
+                + '<span>' + paper.year + '年</span>'
+                + '<span>' + fileSize + '</span>'
+                + '<span>' + escapeHtml(paper.uploaded_by || '匿名') + '</span>'
+                + '</div></div>'
+                + '<a href="' + fileUrl + '" download="' + escapeAttr(downloadName) + '"'
+                + ' class="ml-4 px-5 py-2 bg-stone-800 text-white rounded-xl hover:bg-stone-700 text-sm whitespace-nowrap shrink-0 font-medium transition-colors">下载</a>'
+                + '</div>';
+        }
+        papersContainer.innerHTML = html;
+
+        // 点击卡片弹出详情
+        var cards = papersContainer.querySelectorAll('.paper-card');
+        for (var j = 0; j < cards.length; j++) {
+            (function(card) {
+                card.addEventListener('click', function(e) {
+                    if (e.target.closest('a[download]')) return;
+                    showPaperDetail({
+                        title: card.dataset.title,
+                        year: card.dataset.year,
+                        semester: card.dataset.semester,
+                        grade: card.dataset.grade,
+                        fileSize: card.dataset.filesize,
+                        uploaded_by: card.dataset.uploader,
+                        fileUrl: card.dataset.url,
+                        downloadName: card.dataset.dlname
+                    });
+                });
+            })(cards[j]);
+        }
     }
 
     function filterPapers() {
-        const year = yearFilter.value;
-        const semester = semesterFilter.value;
-        const keyword = searchPaper.value.toLowerCase().trim();
+        var year = yearFilter.value;
+        var semester = semesterFilter.value;
+        var keyword = searchPaper.value.toLowerCase().trim();
 
-        let filtered = allPapers;
-        if (year) filtered = filtered.filter(p => p.year === parseInt(year));
-        if (semester) filtered = filtered.filter(p => p.semester === semester);
-        if (keyword) filtered = filtered.filter(p => charMatch(p.title, keyword));
+        var filtered = allPapers;
+        if (year) filtered = filtered.filter(function(p) { return p.year === parseInt(year); });
+        if (semester) filtered = filtered.filter(function(p) { return p.semester === semester; });
+        if (keyword) filtered = filtered.filter(function(p) { return charMatch(p.title, keyword); });
 
         renderPapers(filtered);
     }
@@ -147,6 +167,51 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadData();
 });
 
+// ========== 试卷详情弹窗 ==========
+function showPaperDetail(paper) {
+    if (document.getElementById('paperDetailOverlay')) return;
+
+    var overlay = document.createElement('div');
+    overlay.className = 'paper-detail-overlay';
+    overlay.id = 'paperDetailOverlay';
+
+    var gradeRow = paper.grade ? '<div class="detail-row"><span class="detail-label">年级</span><span>' + escapeHtml(paper.grade) + '</span></div>' : '';
+
+    overlay.innerHTML =
+        '<div class="paper-detail-card">'
+        + '<div class="detail-header">试卷信息</div>'
+        + '<div class="detail-body">'
+        + '<div class="detail-row"><span class="detail-label">标题</span><span class="detail-value">' + escapeHtml(paper.title) + '</span></div>'
+        + '<div class="detail-row"><span class="detail-label">年份</span><span>' + paper.year + '年</span></div>'
+        + '<div class="detail-row"><span class="detail-label">学期</span><span>' + escapeHtml(paper.semester) + '</span></div>'
+        + gradeRow
+        + '<div class="detail-row"><span class="detail-label">大小</span><span>' + paper.fileSize + '</span></div>'
+        + '<div class="detail-row"><span class="detail-label">上传者</span><span>' + escapeHtml(paper.uploaded_by || '匿名') + '</span></div>'
+        + '</div>'
+        + '<div class="detail-footer">'
+        + '<a href="' + paper.fileUrl + '" download="' + escapeAttr(paper.downloadName) + '" class="detail-download-btn">下载文件</a>'
+        + '<button class="detail-close-btn">关闭</button>'
+        + '</div>'
+        + '</div>';
+
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closePaperDetail(overlay);
+    });
+    overlay.querySelector('.detail-close-btn').addEventListener('click', function() {
+        closePaperDetail(overlay);
+    });
+
+    document.body.appendChild(overlay);
+}
+
+function closePaperDetail(overlay) {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.25s ease';
+    setTimeout(function() {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 250);
+}
+
 function formatFileSize(bytes) {
     if (!bytes) return '未知大小';
     if (bytes < 1024) return bytes + ' B';
@@ -155,15 +220,17 @@ function formatFileSize(bytes) {
 }
 
 function escapeHtml(text) {
-    const div = document.createElement('div');
+    var div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
+function escapeAttr(text) {
+    return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function getBaseUrl() {
-    const path = window.location.pathname;
-    if (path.includes('/tus/') || path === '/tus') {
-        return '/tus';
-    }
+    var path = window.location.pathname;
+    if (path.indexOf('/tus/') !== -1 || path === '/tus') return '/tus';
     return '';
 }
