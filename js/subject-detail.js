@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             var ext = (paper.file_name || rawPath).split('.').pop().toLowerCase();
             var downloadName = paper.file_name || 'paper.' + (ext === 'doc' || ext === 'docx' ? 'docx' : 'pdf');
 
-            html += '<div class="paper-card bg-white rounded-xl shadow-sm p-5 border border-stone-100 flex items-center justify-between"'
+            html += '<div class="paper-card bg-white rounded-xl shadow-sm p-5 border border-stone-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0"'
                 + ' data-title="' + escapeAttr(paper.title) + '"'
                 + ' data-year="' + paper.year + '"'
                 + ' data-semester="' + escapeAttr(paper.semester) + '"'
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 + ' data-url="' + escapeAttr(fileUrl) + '"'
                 + ' data-dlname="' + escapeAttr(downloadName) + '">'
                 + '<div class="flex-1 min-w-0">'
-                + '<h3 class="font-medium text-stone-800 truncate mb-1.5">' + escapeHtml(paper.title) + '</h3>'
+                + '<h3 class="font-medium text-stone-800 mb-1.5">' + escapeHtml(paper.title) + '</h3>'
                 + '<div class="flex flex-wrap items-center gap-1.5 mb-1.5">' + semesterBadge + gradeBadge + '</div>'
                 + '<div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-stone-400">'
                 + '<span>' + paper.year + '年</span>'
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 + '<span>' + escapeHtml(paper.uploaded_by || '匿名') + '</span>'
                 + '</div></div>'
                 + '<a href="' + fileUrl + '" download="' + escapeAttr(downloadName) + '"'
-                + ' class="ml-4 px-5 py-2 bg-stone-800 text-white rounded-xl hover:bg-stone-700 text-sm whitespace-nowrap shrink-0 font-medium transition-colors">下载</a>'
+                + ' class="self-end sm:self-auto mt-1 sm:mt-0 sm:ml-4 px-5 py-2 bg-stone-800 text-white rounded-xl hover:bg-stone-700 text-sm whitespace-nowrap shrink-0 font-medium transition-colors">下载</a>'
                 + '</div>';
         }
         papersContainer.innerHTML = html;
