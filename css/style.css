@@ -75,3 +75,125 @@ body {
 main {
     flex: 1;
 }
+
+/* ===== 试卷详情弹窗 ===== */
+.paper-detail-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    background: rgba(30, 26, 22, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: overlay-fade-in 0.3s ease;
+}
+
+@keyframes overlay-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.paper-detail-card {
+    background: #fcfaf7;
+    max-width: 420px;
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: card-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+}
+
+@keyframes card-in {
+    from { transform: translateY(24px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.detail-header {
+    text-align: center;
+    padding: 20px 24px 14px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #3d3430;
+    letter-spacing: 4px;
+    border-bottom: 1px solid #ece6de;
+    font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+}
+
+.detail-body {
+    padding: 18px 24px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 7px 0;
+    font-size: 14px;
+    line-height: 1.6;
+    border-bottom: 1px dashed #f0eae2;
+    font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+}
+.detail-row:last-of-type {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: #9e9488;
+    white-space: nowrap;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.detail-value {
+    color: #4a4038;
+    text-align: right;
+    word-break: break-all;
+}
+
+.detail-footer {
+    display: flex;
+    gap: 10px;
+    padding: 14px 24px 20px;
+}
+
+.detail-download-btn,
+.detail-close-btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 8px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+    text-decoration: none;
+    border: none;
+}
+
+.detail-download-btn {
+    background: #3d3430;
+    color: #f0ece6;
+}
+.detail-download-btn:hover {
+    background: #5a5048;
+    color: #fff;
+}
+
+.detail-close-btn {
+    background: #ece6de;
+    color: #5a5048;
+}
+.detail-close-btn:hover {
+    background: #e0d8ce;
+}
+
+@media (max-width: 480px) {
+    .paper-detail-card { max-width: 100%; }
+    .detail-body { padding: 14px 18px; }
+    .detail-footer { padding: 12px 18px 18px; }
+    .detail-header { padding: 16px 18px 12px; font-size: 15px; }
+}
