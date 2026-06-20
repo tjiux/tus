@@ -112,7 +112,7 @@ main {
 
 .paper-detail-card {
     background: #fcfaf7;
-    max-width: 420px;
+    max-width: 460px;
     width: 100%;
     border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
@@ -169,23 +169,37 @@ main {
 
 .detail-footer {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     padding: 14px 24px 20px;
 }
+.detail-footer-triple {
+    flex-wrap: wrap;
+}
 
+.detail-preview-btn,
 .detail-download-btn,
 .detail-close-btn {
-    flex: 1;
     text-align: center;
-    padding: 10px 0;
+    padding: 9px 12px;
     border-radius: 8px;
-    font-size: 14px;
-    letter-spacing: 2px;
+    font-size: 13px;
+    letter-spacing: 1px;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
     text-decoration: none;
     border: none;
+    flex: 1 1 80px;
+    min-width: 0;
+}
+
+.detail-preview-btn {
+    background: #f0ece6;
+    color: #3d3430;
+    border: 1px solid #d0c8be;
+}
+.detail-preview-btn:hover {
+    background: #e4dcd2;
 }
 
 .detail-download-btn {
