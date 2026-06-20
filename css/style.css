@@ -38,8 +38,8 @@ body {
 .paper-card h3 {
     overflow: hidden;
     white-space: nowrap;
-    -webkit-mask-image: linear-gradient(to right, black 70%, transparent 94%);
-    mask-image: linear-gradient(to right, black 70%, transparent 94%);
+    -webkit-mask-image: linear-gradient(to right, black 92%, transparent 98%);
+    mask-image: linear-gradient(to right, black 92%, transparent 98%);
 }
 
 /* 长标题跑马灯 — 用 scrollLeft 实现，mask 固定在卡片边缘不动 */
