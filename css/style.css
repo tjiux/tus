@@ -38,8 +38,8 @@ body {
 .paper-card h3 {
     overflow: hidden;
     white-space: nowrap;
-    -webkit-mask-image: linear-gradient(to right, black 40%, transparent 72%);
-    mask-image: linear-gradient(to right, black 40%, transparent 72%);
+    -webkit-mask-image: linear-gradient(to right, black 70%, transparent 94%);
+    mask-image: linear-gradient(to right, black 70%, transparent 94%);
 }
 
 /* 拖拽上传区高亮 */
