@@ -7,16 +7,22 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+html {
+    width: 100%;
     overflow-x: hidden;
 }
 
-/* 所有容器确保不溢出 */
+body {
+    font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* 容器不溢出 */
 #papersContainer,
-#subjectsContainer,
-main {
-    max-width: 100vw;
+#subjectsContainer {
+    width: 100%;
+    max-width: 100%;
     overflow-x: hidden;
 }
 
