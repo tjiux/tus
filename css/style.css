@@ -144,6 +144,17 @@ html.dark .subject-card:hover {
     border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
+/* 暗色选择框箭头 — 自定义替换浏览器默认箭头 */
+html.dark select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a69a8e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 36px;
+}
+
 /* 暗色 Hero 标签 */
 html.dark .hero-label {
     background: rgba(255, 255, 255, 0.06);
@@ -241,9 +252,13 @@ nav .text-2xl.font-bold::after {
 /* 科目年级标记 — 右上角绝对定位 */
 .subj-grade {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 0;
+    right: 0;
     z-index: 1;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 0 !important;
 }
 
 /* 科目标题溢出裁切 + 跑马灯 */
