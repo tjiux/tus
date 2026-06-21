@@ -573,15 +573,28 @@ main {
     .paper-detail-card.preview-mode {
         max-width: 100%;
         width: 100%;
-        height: 100vh;
-        max-height: 100vh;
+        height: 100dvh;
+        max-height: 100dvh;
         border-radius: 0;
     }
     .paper-detail-card.preview-mode .preview-container {
         max-height: none;
+        height: auto;
+        flex: 1;
+        min-height: 0;
     }
     .preview-container {
         max-height: 40vh;
+    }
+    .paper-detail-overlay {
+        padding: 0;
+    }
+    .paper-detail-card.preview-mode .detail-header {
+        padding: 14px 16px 10px;
+        font-size: 14px;
+    }
+    .paper-detail-card.preview-mode .detail-footer {
+        padding: 10px 12px 14px;
     }
 }
 
