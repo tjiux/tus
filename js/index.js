@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     gradeBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             gradeBtns.forEach(b => {
-                b.className = 'grade-btn px-5 py-2 rounded-full text-sm font-medium border transition-all shadow-sm ' +
+                b.className = 'grade-btn px-5 py-2.5 rounded-full text-sm font-medium border transition-all shadow-sm ' +
                     (b === this
                         ? 'bg-stone-800 text-white border-stone-800'
                         : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400 hover:text-stone-700');
@@ -95,12 +95,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             return `
                 <a href="subject-detail.html?id=${subject.id}" class="subject-card bg-white rounded-xl shadow-sm p-5 border border-stone-100 block">
                     <div class="flex items-start justify-between mb-1">
-                        <h3 class="font-semibold text-stone-800 text-lg">${subject.name}</h3>
+                        <h2 class="font-semibold text-stone-800 text-lg">${subject.name}</h2>
                         ${gradeBadge}
                     </div>
                     ${subject.teacher ? `<p class="text-stone-400 text-sm mb-2">${subject.teacher}</p>` : ''}
                     ${subject.description ? `<p class="text-stone-500 text-sm mb-3 line-clamp-2">${subject.description}</p>` : ''}
-                    <div class="flex items-center gap-3 text-sm text-stone-400">
+                    <div class="flex items-center gap-3 text-sm text-stone-500">
                         <span>${paperCount} 份试卷</span>
                     </div>
                 </a>
