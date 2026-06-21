@@ -8,7 +8,7 @@
   var HEADER_HTML =
     '<div class="announcement-date">二〇二六年六月十九日</div>' +
     '<div class="announcement-header-row">' +
-      '<div class="announcement-title">公<span class="dot"></span>告</div>' +
+      '<div class="announcement-title">公告</div>' +
       '<div class="announcement-seal">A</div>' +
     '</div>';
 
