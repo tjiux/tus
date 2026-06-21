@@ -163,6 +163,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         var cards = papersContainer.querySelectorAll('.paper-card');
         for (var j = 0; j < cards.length; j++) {
             (function(card) {
+                // 让移动端 :active 立刻触发（空 touchstart 即可启用）
+                card.addEventListener('touchstart', function() {}, {passive: true});
                 card.addEventListener('click', function() {
                     showPaperDetail({
                         title: card.dataset.title,
@@ -268,11 +270,10 @@ function startMarquee(el) {
     el._marqueeActive = true;
     el.scrollLeft = 0;
 
-    var speed = 1;
+    var speed = 0.7;
     var dir = 1;
     var paused = false;
     var PAUSE_MS = 2000; // 两端暂停 2 秒
-    var TICK_MS = 26;    // ~38fps，配合 speed=1 达到约 38px/s，避免小数像素问题
 
     function tick() {
         if (!el._marqueeActive || !el.isConnected) { clearInterval(el._marqueeTimer); return; }
@@ -291,7 +292,7 @@ function startMarquee(el) {
         }
     }
 
-    el._marqueeTimer = setInterval(tick, TICK_MS);
+    el._marqueeTimer = setInterval(tick, 16);
 }
 
 function formatFileSize(bytes) {
