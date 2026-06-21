@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 + '<div class="text-4xl mb-3 opacity-60">🔍</div>'
                 + '<p class="text-stone-500 font-medium">没有找到匹配的试卷</p>'
                 + '<p class="text-stone-400 text-sm mt-2">试试调整筛选条件</p>'
-                + '<a href="submit.html" class="inline-block mt-4 bg-amber-700 text-white px-5 py-2 rounded-lg hover:bg-amber-800 text-sm font-medium transition-colors">去提交新试卷</a>'
+                + '<a href="submit.html" class="inline-block mt-4 bg-yellow-600 dark:bg-yellow-500 text-stone-900 dark:text-stone-900 px-5 py-2.5 rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-400 text-sm font-medium transition-colors">去提交新试卷</a>'
                 + '</div>';
             return;
         }
