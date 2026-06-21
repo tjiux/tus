@@ -468,17 +468,22 @@ async function handleSubmission(issue) {
     if (repoPath) {
         console.log(`    仓库路径: ${repoPath}`);
         const encodedPath = encodeURI(repoPath);
+        const ghPagesUrl = `https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/${encodedPath}`;
         const rawFileUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${encodedPath}`;
+        const jsdUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodedPath}`;
         const ext = path.extname(repoPath).toLowerCase();
         if (ext === '.pdf') {
             // 多重源自动切换预览 — 先试 jsDelivr CDN（快），不行切 GitHub Pages（慢但稳）
-            var previewUrl = encodeURIComponent(`https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/${encodedPath}`);
+            var previewUrl = encodeURIComponent(ghPagesUrl);
             console.log(`    🔗 在线预览: https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/preview.html?url=${previewUrl}`);
+            console.log(`    🔗 CDN直链(快): ${jsdUrl}`);
         } else {
             // Word/Office：Office Online Viewer 在线渲染
             console.log(`    🔗 在线预览: https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawFileUrl)}`);
+            console.log(`    🔗 CDN直链(快): ${jsdUrl}`);
         }
-        console.log(`    🔗 原始下载: ${rawFileUrl}`);
+        console.log(`    🔗 下载链接: ${ghPagesUrl}`);
+        console.log(`    🔗 原始链接(国外): ${rawFileUrl}`);
     }
     if (pdfUrl) console.log(`    PDF链接: ${pdfUrl}`);
 
@@ -787,7 +792,20 @@ async function managePapers() {
     const paper = items.find(p => p.id === pid);
     if (!paper) { console.log('  ❌ 无效编号'); return; }
 
+    const encodedPaperPath = encodeURI(paper.file_path);
+    const ghPagesUrl = `https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/assets/papers/${encodedPaperPath}`;
+    const jsdUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/assets/papers/${encodedPaperPath}`;
+    const ext = path.extname(paper.file_path).toLowerCase();
+
     console.log(`\n  当前: ${paper.title}`);
+    console.log(`  📄 文件: ${paper.file_path}`);
+    if (ext === '.pdf') {
+        console.log(`  🔗 在线预览: https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/preview.html?url=${encodeURIComponent(ghPagesUrl)}`);
+    } else {
+        console.log(`  🔗 在线预览: https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(ghPagesUrl)}`);
+    }
+    console.log(`  🔗 下载链接: ${ghPagesUrl}`);
+
     const action = await question('  操作: [r]重命名 [m]移动科目 [d]删除 (按回车取消): ');
     if (action === 'r') {
         const newTitle = await question('  新标题: ');
