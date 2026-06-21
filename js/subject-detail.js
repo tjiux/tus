@@ -224,15 +224,14 @@ function showPaperDetail(paper) {
         : originalUrl;
 
     // 预览区
-    // PDF → iframe 加载 preview.html（CDN 备降）
-    // Word → 纯前端 docx-preview 渲染（不依赖外部服务）
+    // PDF / Word → 纯前端库本地渲染（不依赖外部服务）
     var previewUrl;
     var viewerHtml;
     if (isPdf) {
-        previewUrl = 'preview.html?url=' + encodeURIComponent(absoluteUrl);
-        viewerHtml = '<iframe class="preview-iframe" id="previewIframe" src="about:blank"></iframe>';
+        previewUrl = absoluteUrl;  // 用于 fetch 获取文件
+        viewerHtml = '<div class="pdf-container" id="pdfContainer"></div>';
     } else {
-        previewUrl = absoluteUrl;  // 直接用于 fetch 获取文件
+        previewUrl = absoluteUrl;  // 用于 fetch 获取文件
         viewerHtml = '<div class="word-container" id="wordContainer" style="display:none;overflow:auto;background:#fff;"></div>';
     }
 
@@ -323,21 +322,71 @@ function enterPreviewMode(overlay) {
     card.classList.add('preview-mode');
 
     if (isPdf) {
-        // PDF: iframe → preview.html（CDN 备降）
-        var iframe = overlay.querySelector('#previewIframe');
-        if (iframe) {
-            iframe.src = previewUrl;
-            iframe.onload = function() {
-                previewLoading.style.display = 'none';
-                iframe.style.display = '';
-            };
+        // PDF: 纯前端 PDF.js 渲染
+        var pdfContainer = overlay.querySelector('#pdfContainer');
+        var dlHref = card.querySelector('.detail-download-btn').getAttribute('href');
+
+        function renderPdf() {
+            previewLoading.querySelector('p').textContent = '正在渲染 PDF...';
+            var base = (window.location.pathname.indexOf('/tus/') >= 0 ? '/tus' : '');
+
+            import(base + '/js/pdf.min.mjs').then(function(pdfjs) {
+                pdfjs.GlobalWorkerOptions.workerSrc = base + '/js/pdf.worker.min.mjs';
+                return fetch(previewUrl).then(function(r) { return r.arrayBuffer(); })
+                .then(function(buffer) {
+                    return pdfjs.getDocument({ data: buffer }).promise;
+                })
+                .then(function(doc) {
+                    previewLoading.style.display = 'none';
+                    pdfContainer.style.display = '';
+                    pdfContainer.innerHTML = '';
+                    // 渲染所有页面
+                    var renderNext = function(pageNum) {
+                        if (pageNum > doc.numPages) return;
+                        doc.getPage(pageNum).then(function(page) {
+                            var scale = Math.min(1.5, (pdfContainer.clientWidth - 20) / page.getViewport({scale:1}).width);
+                            var viewport = page.getViewport({scale: scale});
+                            var canvas = document.createElement('canvas');
+                            canvas.className = 'pdf-page';
+                            canvas.width = viewport.width;
+                            canvas.height = viewport.height;
+                            pdfContainer.appendChild(canvas);
+                            return page.render({
+                                canvasContext: canvas.getContext('2d'),
+                                viewport: viewport
+                            }).promise.then(function() {
+                                renderNext(pageNum + 1);
+                            });
+                        });
+                    };
+                    return renderNext(1);
+                });
+            }).catch(function(e) {
+                console.warn('PDF.js 渲染失败:', e);
+                showPdfFallback();
+            });
         }
-        // 超时提示
+
+        function showPdfFallback() {
+            previewLoading.innerHTML = '<p style="color:#9e9488;font-size:13px;line-height:1.8;">'
+                + '预览加载失败。<br>'
+                + '试试 <a href="' + dlHref + '" download style="color:#ca8a04;">下载文件</a>'
+                + ' 在本地打开</p>';
+        }
+
+        // 动态加载 PDF.js 模块
+        if (typeof pdfjsLib !== 'undefined') {
+            renderPdf();
+        } else {
+            renderPdf(); // import() 会处理模块加载
+        }
+
+        // PDF 渲染超时（20秒）
         card._previewTimeoutId = setTimeout(function() {
             if (previewLoading.style.display !== 'none') {
-                previewLoading.innerHTML = '<p style="color:#9e9488;font-size:13px;">加载较慢，试试 <a href="' + previewUrl + '" target="_blank" rel="noopener" style="color:#ca8a04;">在新标签页打开</a></p>';
+                showPdfFallback();
             }
-        }, 8000);
+        }, 20000);
     } else {
         // Word: 纯前端 docx-preview 渲染
         var wordContainer = overlay.querySelector('#wordContainer');
@@ -416,10 +465,10 @@ function exitPreviewMode(overlay) {
     }
 
     // 停止加载
-    var iframe = overlay.querySelector('#previewIframe');
-    if (iframe) iframe.src = 'about:blank';
     var wordContainer = overlay.querySelector('#wordContainer');
     if (wordContainer) { wordContainer.style.display = 'none'; wordContainer.innerHTML = ''; }
+    var pdfContainer = overlay.querySelector('#pdfContainer');
+    if (pdfContainer) { pdfContainer.style.display = 'none'; pdfContainer.innerHTML = ''; }
 
     // 恢复头部文字
     header.textContent = '试卷信息';
@@ -436,9 +485,7 @@ function exitPreviewMode(overlay) {
         var absoluteUrl = downloadHref.indexOf('://') === -1
             ? window.location.origin + downloadHref
             : downloadHref;
-        var newPreviewUrl = isPdf
-            ? 'preview.html?url=' + encodeURIComponent(absoluteUrl)
-            : absoluteUrl;  // Word: 直接存文件 URL，enterPreviewMode 中用 fetch 获取
+        var newPreviewUrl = absoluteUrl;  // PDF/Word 都是直接存文件 URL，fetch 获取
 
         var previewBtn = document.createElement('button');
         previewBtn.className = 'detail-preview-btn';
