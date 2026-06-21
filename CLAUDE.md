@@ -7,11 +7,11 @@ Tus 是一个面向北京工业大学学生的试卷共享平台，部署在 Git
 `C:\Users\Haxim\Tus\`
 
 ## 上线地址
-**[https://tjiux.github.io/tus/](https://tjiux.github.io/tus/)**
+**[https://HaximTus.github.io/tus/](https://HaximTus.github.io/tus/)**
 
 ## 联系方式 / 维护者
-- GitHub: **tjiux**
-- 项目仓库: **[https://github.com/tjiux/tus](https://github.com/tjiux/tus)**
+- GitHub: **HaximTus**
+- 项目仓库: **[https://github.com/HaximTus/tus](https://github.com/HaximTus/tus)**
 - 维护者: Haxim
 
 ## 技术栈
