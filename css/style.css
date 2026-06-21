@@ -92,9 +92,10 @@ body {
     mask-image: linear-gradient(to right, black 92%, transparent 100%);
 }
 
-/* 长标题跑马灯 — 用 scrollLeft 实现，mask 固定在卡片边缘不动 */
-.paper-card h2.marquee-scroll {
-    scroll-behavior: auto;
+/* 跑马灯内层 — 由 Web Animations API 驱动 translateX，GPU 加速 60fps */
+.paper-card h2 .marquee-inner {
+    display: inline-block;
+    white-space: nowrap;
 }
 
 /* 拖拽上传区高亮 */
