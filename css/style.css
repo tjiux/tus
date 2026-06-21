@@ -12,17 +12,19 @@ body {
 
 /* ===== 暗色模式变量 ===== */
 html.dark {
-    --bg-body: #1c1917;
-    --bg-gradient: #292524;
-    --bg-card: #292524;
-    --bg-nav: rgba(28, 25, 23, 0.92);
-    --border-light: #44403c;
-    --text-primary: #f5f5f4;
-    --text-secondary: #a8a29e;
-    --text-muted: #78716c;
+    --bg-body: #141210;
+    --bg-gradient: #1f1b18;
+    --bg-card: #2d2824;
+    --bg-card-hover: #35302a;
+    --bg-nav: rgba(20, 18, 16, 0.94);
+    --border-light: #3d3630;
+    --text-primary: #ece6de;
+    --text-secondary: #a69a8e;
+    --text-muted: #8a7e72;
     --accent: #f59e0b;
     --accent-hover: #d97706;
-    --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    --card-border: rgba(255, 255, 255, 0.04);
 }
 
 /* 暗色背景渐变 */
@@ -124,6 +126,32 @@ html.dark .dark-toggle:hover {
         border-color: #d6cec4;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     }
+}
+
+/* 暗色模式卡片交互 */
+html.dark .paper-card:active {
+    background-color: #3d3630;
+}
+@media (hover: hover) {
+    html.dark .paper-card:hover {
+        background-color: var(--bg-card-hover);
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+}
+html.dark .subject-card:hover {
+    background-color: var(--bg-card-hover);
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* 暗色 Hero 标签 */
+html.dark .hero-label {
+    background: rgba(255, 255, 255, 0.06);
+    color: #a69a8e;
+}
+html.dark .hero-label::before,
+html.dark .hero-label::after {
+    background: #d97706;
 }
 
 /* Hero 标签 */
@@ -402,4 +430,49 @@ main {
     .detail-body { padding: 14px 18px; }
     .detail-footer { padding: 12px 18px 18px; }
     .detail-header { padding: 16px 18px 12px; font-size: 15px; }
+}
+
+/* ===== 暗色模式弹窗 ===== */
+html.dark .paper-detail-overlay {
+    background: rgba(10, 8, 6, 0.6);
+}
+html.dark .paper-detail-card {
+    background: #2d2824;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+html.dark .detail-header {
+    color: #ece6de;
+    border-bottom-color: #3d3630;
+}
+html.dark .detail-row {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+html.dark .detail-label {
+    color: #8a7e72;
+}
+html.dark .detail-value {
+    color: #d6cec4;
+}
+html.dark .detail-preview-btn {
+    background: #3d3630;
+    color: #d6cec4;
+    border-color: #4a4038;
+}
+html.dark .detail-preview-btn:hover {
+    background: #4a4038;
+}
+html.dark .detail-download-btn {
+    background: #d97706;
+    color: #141210;
+}
+html.dark .detail-download-btn:hover {
+    background: #f59e0b;
+}
+html.dark .detail-close-btn {
+    background: #3d3630;
+    color: #a69a8e;
+}
+html.dark .detail-close-btn:hover {
+    background: #4a4038;
+    color: #ece6de;
 }
