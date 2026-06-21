@@ -8,7 +8,7 @@
     <link rel="icon" href="favicon.svg">
     <script>if(localStorage.getItem('tus_dark')==='1')document.documentElement.classList.add('dark')</script>
     <link rel="stylesheet" href="css/tailwind.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
     <link rel="stylesheet" href="css/announcement.css?v=4">
 </head>
 <body class="bg-gradient-to-br from-stone-100 to-amber-50/60 dark:from-stone-900 dark:to-stone-800 min-h-screen">
@@ -109,7 +109,7 @@
             </div>
 
             <!-- 提交按钮 -->
-            <button type="submit" id="submitBtn" class="w-full bg-amber-700 dark:bg-amber-600 text-white py-3.5 rounded-xl hover:bg-amber-800 dark:hover:bg-amber-700 font-medium disabled:opacity-40 transition-colors" disabled>
+            <button type="submit" id="submitBtn" class="w-full bg-yellow-600 dark:bg-yellow-500 text-stone-900 py-3.5 rounded-xl hover:bg-yellow-700 dark:hover:bg-yellow-400 font-medium disabled:opacity-40 transition-colors" disabled>
                 提交试卷
             </button>
         </form>
@@ -128,7 +128,7 @@
                 <h3 class="text-xl font-bold text-stone-800 dark:text-stone-100 mb-2">提交成功</h3>
                 <p class="text-stone-500 dark:text-stone-400 mb-2">感谢你的分享！</p>
                 <p class="text-stone-400 dark:text-stone-500 text-sm mb-6">管理员审核后会尽快上线试卷</p>
-                <a href="." class="inline-block bg-amber-700 dark:bg-amber-600 text-white px-8 py-3 rounded-xl hover:bg-amber-800 dark:hover:bg-amber-700 transition-colors font-medium">返回首页</a>
+                <a href="." class="inline-block bg-yellow-600 dark:bg-yellow-500 text-stone-900 px-8 py-3 rounded-xl hover:bg-yellow-700 dark:hover:bg-yellow-400 transition-colors font-medium">返回首页</a>
             </div>
         </div>
 
@@ -137,7 +137,7 @@
             <div class="bg-white dark:bg-stone-800 rounded-2xl p-8 text-center max-w-sm shadow-xl">
                 <h3 class="text-xl font-bold text-stone-800 dark:text-stone-100 mb-2">提交失败</h3>
                 <p id="errorText" class="text-stone-500 dark:text-stone-400 mb-6">请稍后重试</p>
-                <button onclick="location.reload()" class="bg-amber-700 dark:bg-amber-600 text-white px-8 py-3 rounded-xl hover:bg-amber-800 dark:hover:bg-amber-700 transition-colors font-medium">刷新重试</button>
+                <button onclick="location.reload()" class="bg-yellow-600 dark:bg-yellow-500 text-stone-900 px-8 py-3 rounded-xl hover:bg-yellow-700 dark:hover:bg-yellow-400 transition-colors font-medium">刷新重试</button>
             </div>
         </div>
     </main>
