@@ -343,16 +343,25 @@ function enterPreviewMode(overlay) {
         var wordContainer = overlay.querySelector('#wordContainer');
         var dlHref = card.querySelector('.detail-download-btn').getAttribute('href');
 
-        // 动态加载 docx-preview 库（jsDelivr CDN，国内可访问）
-        if (typeof docx === 'undefined') {
-            var script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/docx-preview@0.3.0/dist/index.js';
-            script.onload = renderWord;
-            script.onerror = showWordFallback;
-            document.head.appendChild(script);
-        } else {
-            renderWord();
+        // 动态加载 JSZip + docx-preview（本地文件，无需外部服务）
+        function loadDocxPreview() {
+            if (typeof docx !== 'undefined') { renderWord(); return; }
+            // 先确保 JSZip 已加载
+            if (typeof JSZip === 'undefined') {
+                var s1 = document.createElement('script');
+                s1.src = 'js/jszip.min.js';
+                s1.onload = loadDocxPreview;
+                s1.onerror = showWordFallback;
+                document.head.appendChild(s1);
+                return;
+            }
+            var s2 = document.createElement('script');
+            s2.src = 'js/docx-preview.min.js';
+            s2.onload = renderWord;
+            s2.onerror = showWordFallback;
+            document.head.appendChild(s2);
         }
+        loadDocxPreview();
 
         function renderWord() {
             previewLoading.querySelector('p').textContent = '正在渲染文档...';
