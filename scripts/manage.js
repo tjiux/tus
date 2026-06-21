@@ -15,6 +15,8 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const readline = require('readline');
+const os = require('os');
+const { execSync } = require('child_process');
 
 // GitHub 配置（从 .env 文件读取）
 const GITHUB_OWNER = 'HaximTus';
@@ -465,8 +467,9 @@ async function handleSubmission(issue) {
         const rawFileUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${encodedPath}`;
         const ext = path.extname(repoPath).toLowerCase();
         if (ext === '.pdf') {
-            // jsDelivr CDN 预览（速度快，中国内地有节点）
-            console.log(`    🔗 在线预览: https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodedPath}`);
+            // Tus 预览页 — PDF.js 从 CDN 拉取渲染，速度快、国内可访问
+            var cdnUrl = encodeURIComponent(`https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodedPath}`);
+            console.log(`    🔗 在线预览: https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/preview.html?url=${cdnUrl}`);
         } else {
             // Word/Office：Office Online Viewer 在线渲染
             console.log(`    🔗 在线预览: https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawFileUrl)}`);
