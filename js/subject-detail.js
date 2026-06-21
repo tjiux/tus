@@ -429,6 +429,11 @@ function enterPreviewMode(overlay) {
                 .then(function() {
                     previewLoading.style.display = 'none';
                     wordContainer.style.display = '';
+                    // 强制 docx-preview 填满容器宽度
+                    var dp = wordContainer.querySelector('.docx-preview');
+                    if (dp && dp.offsetWidth < wordContainer.clientWidth - 1) {
+                        dp.style.setProperty('width', wordContainer.clientWidth + 'px', 'important');
+                    }
                 })
                 .catch(function(e) {
                     console.warn('docx-preview 渲染失败:', e);
