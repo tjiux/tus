@@ -228,10 +228,20 @@ function showPaperDetail(paper) {
         officeUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(absoluteUrl);
     }
 
-    // 预览区 HTML（仅 PDF 需要，Word 直接新标签页打开）
+    // PDF: iframe → preview.html（有 CDN 备降）
+    // Word: 新标签页打开 Office Viewer
     var viewerHtml = isPdf
-        ? '<embed class="preview-embed" id="previewEmbed" type="application/pdf" src="about:blank">'
+        ? '<iframe class="preview-iframe" id="previewIframe" src="about:blank"></iframe>'
         : '';
+
+    // PDF 预览 URL（传给 preview.html）
+    var pdfPreviewUrl;
+    if (isPdf) {
+        var absolutePdfUrl = originalUrl.indexOf('://') === -1
+            ? window.location.origin + originalUrl
+            : originalUrl;
+        pdfPreviewUrl = 'preview.html?url=' + encodeURIComponent(absolutePdfUrl);
+    }
 
     overlay.innerHTML =
         '<div class="paper-detail-card" id="paperDetailCard">'
@@ -248,20 +258,22 @@ function showPaperDetail(paper) {
         + '<div class="detail-row"><span class="detail-label">上传者</span><span class="detail-value">' + escapeHtml(paper.uploaded_by || '匿名') + '</span></div>'
         + '</div>'
 
-        // 预览区（初始隐藏）
-        + '<div class="preview-container" id="previewContainer" style="display:none">'
-        +   '<div class="preview-loading" id="previewLoading">'
-        +     '<div class="spinner"></div>'
-        +     '<p>正在加载预览...</p>'
-        +   '</div>'
-        +   viewerHtml
-        + '</div>'
+        // 预览区（初始隐藏，仅 PDF 有）
+        + (isPdf
+            ? '<div class="preview-container" id="previewContainer" style="display:none">'
+            +   '<div class="preview-loading" id="previewLoading">'
+            +     '<div class="spinner"></div>'
+            +     '<p>正在加载预览...</p>'
+            +   '</div>'
+            +   viewerHtml
+            + '</div>'
+            : '')
 
         // 底部按钮
         + '<div class="detail-footer detail-footer-triple" id="detailFooter">'
         + (isPdf
-            ? '<button class="detail-preview-btn" id="previewBtn" data-previewurl="' + escapeAttr(originalUrl) + '">在线预览</button>'
-            : '<a href="' + escapeAttr(officeUrl) + '" target="_blank" rel="noopener" class="detail-preview-btn">在线预览</a>')
+            ? '<button class="detail-preview-btn" id="previewBtn" data-previewurl="' + escapeAttr(pdfPreviewUrl) + '">📖 在线预览</button>'
+            : '<a href="' + escapeAttr(officeUrl) + '" target="_blank" rel="noopener" class="detail-preview-btn">🔗 在线预览</a>')
         + '<a href="' + escapeAttr(originalUrl) + '" download="' + escapeAttr(paper.downloadName) + '" class="detail-download-btn">下载文件</a>'
         + '<button class="detail-close-btn" id="closeBtn">关闭</button>'
         + '</div>'
@@ -294,7 +306,7 @@ function enterPreviewMode(overlay) {
     var previewLoading = overlay.querySelector('#previewLoading');
     var previewBtn = overlay.querySelector('#previewBtn');
 
-    // 获取预览 URL
+    // 获取预览 URL（preview.html?url=...）
     var previewUrl = previewBtn.dataset.previewurl || '';
 
     // 切换头部文字
@@ -318,25 +330,14 @@ function enterPreviewMode(overlay) {
     // 卡片切换到预览模式（样式放大）
     card.classList.add('preview-mode');
 
-    // 加载 PDF 预览
-    var viewer = overlay.querySelector('#previewEmbed');
-
-    if (viewer) {
-        viewer.style.display = 'none';
-        viewer.src = previewUrl;
-        viewer.onload = function() {
+    // 通过 iframe 加载 preview.html（它有 CDN 备降逻辑）
+    var iframe = overlay.querySelector('#previewIframe');
+    if (iframe) {
+        iframe.src = previewUrl;
+        iframe.onload = function() {
             previewLoading.style.display = 'none';
-            viewer.style.display = '';
+            iframe.style.display = '';
         };
-        // embed 的 onload 可能不触发，用超时兜底
-        if (isPdf) {
-            setTimeout(function() {
-                if (previewLoading.style.display !== 'none') {
-                    previewLoading.style.display = 'none';
-                    viewer.style.display = '';
-                }
-            }, 2000);
-        }
     }
 
     // 超时提示（退出预览时需清除）
@@ -359,10 +360,8 @@ function exitPreviewMode(overlay) {
         card._previewTimeoutId = null;
     }
 
-    // 停止加载
-    var embed = overlay.querySelector('#previewEmbed');
+    // 停止 iframe 加载
     var iframe = overlay.querySelector('#previewIframe');
-    if (embed) embed.src = 'about:blank';
     if (iframe) iframe.src = 'about:blank';
 
     // 恢复头部文字
