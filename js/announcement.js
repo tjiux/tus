@@ -17,7 +17,7 @@
     '<p>今天，Tus 开始面向部分学生进行测试运行。网站可能有一些不尽如人意的地方（或者一些恶心的 bug），希望同学们可以提一些意见（所谓的部分学生大概都有我微信，所以微信上说就可以了）。</p>' +
     '<p>Tus 为了减轻同学们考试周的负担，为了北京工业大学学生的试卷自由而生。</p>' +
     '<p>目前网站仅收录部分测试试卷（手里试卷有点儿多，会慢慢更新）。为构建一个学生无任何付出即可获取自己所需试卷（未开始考试的试卷除外）的理想世界，我们不强制但鼓励同学们上传 Tus 未收录的试卷。开源项目需要同学们的共同维护。</p>' +
-    '<p>另外，欢迎大家为我的项目 <a href="https://github.com/tjiux/tus" target="_blank">github.com/tjiux/tus</a> 点一颗小星星。</p>' +
+    '<p>另外，欢迎大家为我的项目 <a href="https://github.com/HaximTus/tus" target="_blank">github.com/HaximTus/tus</a> 点一颗小星星。</p>' +
     '<p>十分感谢同学们的支持。</p>' +
     '<div class="announcement-signature-wrapper">' +
       '<span class="announcement-signature">— Haxim Tus</span>' +
