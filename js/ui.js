@@ -27,6 +27,9 @@
   } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     applyDark(true);
     localStorage.setItem(KEY, '1');
+  } else {
+    // 兜底：浅色模式，确保按钮文字正确
+    if (toggle) toggle.textContent = '暗';
   }
 
   // 切换按钮
