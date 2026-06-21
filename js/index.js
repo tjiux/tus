@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             gradeBtns.forEach(b => {
                 b.className = 'grade-btn px-5 py-2.5 rounded-full text-sm font-medium border transition-all shadow-sm ' +
                     (b === this
-                        ? 'bg-stone-800 text-white border-stone-800'
-                        : 'bg-white text-stone-600 border-stone-200 hover:border-stone-400 hover:text-stone-700');
+                        ? 'bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-800 border-stone-800 dark:border-stone-200'
+                        : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-600 hover:border-stone-400 hover:text-stone-700');
             });
             activeGrade = this.dataset.grade;
             applyFilters();
@@ -89,23 +89,33 @@ document.addEventListener('DOMContentLoaded', async function() {
             return;
         }
 
-        container.innerHTML = subjects.map(subject => {
-            const paperCount = subject.papers?.[0]?.count || 0;
-            const gradeBadge = subject.grade ? `<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">${subject.grade}</span>` : '';
-            return `
-                <a href="subject-detail.html?id=${subject.id}" class="subject-card bg-white rounded-xl shadow-sm p-5 border border-stone-100 block">
-                    <div class="flex items-start justify-between mb-1">
-                        <h2 class="font-semibold text-stone-800 text-lg">${subject.name}</h2>
-                        ${gradeBadge}
-                    </div>
-                    ${subject.teacher ? `<p class="text-stone-400 text-sm mb-2">${subject.teacher}</p>` : ''}
-                    ${subject.description ? `<p class="text-stone-500 text-sm mb-3 line-clamp-2">${subject.description}</p>` : ''}
-                    <div class="flex items-center gap-3 text-sm text-stone-500">
-                        <span>${paperCount} 份试卷</span>
-                    </div>
-                </a>
-            `;
+        container.innerHTML = subjects.map(function(subject) {
+            var paperCount = subject.papers?.[0]?.count || 0;
+            var gradeBadge = subject.grade ? '<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded">' + subject.grade + '</span>' : '';
+            return '<a href="subject-detail.html?id=' + subject.id + '" class="subject-card bg-white dark:bg-stone-800 rounded-xl shadow-sm p-5 border border-stone-100 dark:border-stone-700 block">'
+                + '<div class="flex items-start justify-between mb-1">'
+                    + '<h2 class="font-semibold text-stone-800 dark:text-stone-100 text-lg">' + subject.name + '</h2>'
+                    + gradeBadge
+                + '</div>'
+                + (subject.teacher ? '<p class="text-stone-400 dark:text-stone-500 text-sm mb-2">' + subject.teacher + '</p>' : '')
+                + (subject.description ? '<p class="text-stone-500 dark:text-stone-400 text-sm mb-3 line-clamp-2">' + subject.description + '</p>' : '')
+                + '<div class="flex items-center gap-3 text-sm text-stone-500 dark:text-stone-400">'
+                    + '<span>' + paperCount + ' 份试卷</span>'
+                + '</div>'
+                + '</a>';
         }).join('');
+
+        // 卡片入场动画：错开 60ms 依次显现
+        requestAnimationFrame(function() {
+            var cards = container.querySelectorAll('.subject-card');
+            for (var ci = 0; ci < cards.length; ci++) {
+                (function(idx, card) {
+                    setTimeout(function() {
+                        card.classList.add('card-visible');
+                    }, idx * 60);
+                })(ci, cards[ci]);
+            }
+        });
     }
 
     // 初始化
