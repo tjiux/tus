@@ -516,8 +516,7 @@ main {
     to { transform: rotate(360deg); }
 }
 
-.preview-iframe,
-.preview-embed {
+.preview-iframe {
     width: 100%;
     flex: 1;
     border: none;
