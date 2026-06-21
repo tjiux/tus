@@ -8,7 +8,7 @@
     <link rel="icon" href="favicon.svg">
     <script>if(localStorage.getItem('tus_dark')==='1')document.documentElement.classList.add('dark')</script>
     <link rel="stylesheet" href="css/tailwind.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
     <link rel="stylesheet" href="css/announcement.css?v=4">
 </head>
 <body class="bg-gradient-to-br from-stone-100 to-amber-50/60 dark:from-stone-900 dark:to-stone-800 min-h-screen">
@@ -19,7 +19,7 @@
             <div class="flex items-center gap-3">
                 <span class="nav-announcement" id="navAnnouncement">公告</span>
                 <button class="dark-toggle" id="darkToggle" aria-label="切换暗色模式">🌙</button>
-                <a href="submit.html" class="bg-amber-700 text-white px-4 py-2.5 rounded-lg hover:bg-amber-800 text-sm font-medium transition-colors">提交试卷</a>
+                <a href="submit.html" class="bg-yellow-600 dark:bg-yellow-500 text-stone-900 dark:text-stone-900 px-4 py-2.5 rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-400 text-sm font-medium transition-colors">提交试卷</a>
             </div>
         </div>
     </nav>
@@ -69,7 +69,7 @@
             <div class="text-5xl mb-4 opacity-60">😵</div>
             <p class="text-red-500 text-lg">加载失败</p>
             <p class="text-stone-400 dark:text-stone-500 mt-2 text-sm" id="errorMessage">请检查网络连接后刷新页面</p>
-            <button onclick="location.reload()" class="mt-4 bg-stone-700 dark:bg-stone-600 text-white px-6 py-2.5 rounded-lg hover:bg-stone-800 dark:hover:bg-stone-500 transition-colors text-sm">刷新重试</button>
+            <button onclick="location.reload()" class="mt-4 bg-yellow-600 dark:bg-yellow-500 text-stone-900 px-6 py-2.5 rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-400 transition-colors text-sm">刷新重试</button>
         </div>
     </main>
 
