@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             var fileType = isWord ? 'Word' : 'PDF';
             var setter = paper.setter || '';
 
-            html += '<div class="paper-card bg-white rounded-xl shadow-sm p-4 border border-stone-100"'
+            html += '<div class="paper-card bg-white dark:bg-stone-800 rounded-xl shadow-sm p-4 border border-stone-100 dark:border-stone-700"'
                 + ' data-title="' + escapeAttr(paper.title) + '"'
                 + ' data-year="' + paper.year + '"'
                 + ' data-semester="' + escapeAttr(paper.semester) + '"'
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 + ' data-url="' + escapeAttr(fileUrl) + '"'
                 + ' data-dlname="' + escapeAttr(downloadName) + '"'
                 + ' data-isword="' + (isWord ? '1' : '0') + '">'
-                + '<h2 class="font-semibold text-stone-800 text-base"><span class="marquee-inner">' + escapeHtml(paper.title) + '</span></h2>'
+                + '<h2 class="font-semibold text-stone-800 dark:text-stone-100 text-base"><span class="marquee-inner">' + escapeHtml(paper.title) + '</span></h2>'
                 + '<div class="flex flex-wrap items-center gap-1.5 mt-1">' + yearBadge + semesterBadge + gradeBadge + '</div>'
                 + '</div>';
         }
