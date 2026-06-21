@@ -528,17 +528,20 @@ main {
 }
 .word-container {
     background: #525252;
-    overflow: hidden;
+    min-height: 0;
+    overflow-y: auto;
+    height: 100%;
+    padding: 0 8px;
 }
 .word-container .docx-preview {
     background: #fff;
-    width: 100% !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     border-radius: 2px;
     overflow-x: hidden;
     word-wrap: break-word;
-    padding: 18px 20px !important;   /* 覆盖 docx-preview 的 72pt */
-    margin: 0 0 6px 0 !important;   /* 覆盖 docx-preview 的 30px 底部间距 */
+    padding: 18px 20px !important;
+    margin: 0 !important;
+    width: auto !important;   /* JS 会设置精确宽度 */
 }
 .word-container .docx-preview > * {
     max-width: 100% !important;
@@ -662,6 +665,10 @@ html.dark .preview-iframe {
 }
 html.dark .word-container {
     background: #333;
+}
+html.dark .word-container .docx-preview {
+    background: #fff;
+    color: #1c1917;
 }
 html.dark .word-container .docx-preview {
     background: #fff;
