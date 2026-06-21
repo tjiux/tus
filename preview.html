@@ -73,10 +73,16 @@
             loadMsg.textContent = '正在从 ' + label + ' 获取…';
             srcLabel.textContent = url;
 
-            return fetch(url, { redirect: 'follow' }).then(function(resp) {
+            // 3 秒超时，失败则切换到下一个源
+            var controller = new AbortController();
+            var timer = setTimeout(function() { controller.abort(); }, 3000);
+
+            return fetch(url, { redirect: 'follow', signal: controller.signal }).then(function(resp) {
+                clearTimeout(timer);
                 if (!resp.ok) throw new Error('HTTP ' + resp.status);
                 return resp.blob();
             }).then(function(blob) {
+                clearTimeout(timer);
                 var pdfBlob = new Blob([blob], { type: 'application/pdf' });
                 var blobUrl = URL.createObjectURL(pdfBlob);
                 var embed = document.getElementById('pdfViewer');
