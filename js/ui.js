@@ -1,7 +1,43 @@
 /**
  * Tus - 通用 UI 组件
- * 回到顶部按钮、全局工具函数
+ * 回到顶部按钮、暗色模式切换
  */
+
+// ========== 暗色模式切换 ==========
+(function() {
+  var KEY = 'tus_dark';
+  var toggle = document.getElementById('darkToggle');
+
+  function applyDark(isDark) {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      if (toggle) toggle.textContent = '☀️';
+    } else {
+      document.documentElement.classList.remove('dark');
+      if (toggle) toggle.textContent = '🌙';
+    }
+  }
+
+  // 初始化：优先 localStorage，其次系统偏好
+  var stored = localStorage.getItem(KEY);
+  if (stored === '1') {
+    applyDark(true);
+  } else if (stored === '0') {
+    applyDark(false);
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    applyDark(true);
+    localStorage.setItem(KEY, '1');
+  }
+
+  // 切换按钮
+  if (toggle) {
+    toggle.addEventListener('click', function() {
+      var isDark = !document.documentElement.classList.contains('dark');
+      applyDark(isDark);
+      localStorage.setItem(KEY, isDark ? '1' : '0');
+    });
+  }
+})();
 
 // ========== 回到顶部按钮 ==========
 (function() {
