@@ -60,15 +60,15 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         if (filtered.length === 0) {
             dropdownItems.innerHTML = `
-                <div class="px-4 py-3 text-sm text-stone-400 italic">
+                <div class="px-4 py-3 text-sm text-stone-400 dark:text-stone-500 italic">
                     将使用新科目: "${filter}"
                 </div>`;
             return;
         }
 
         dropdownItems.innerHTML = filtered.map(s => {
-            const gradeTag = s.grade ? `<span class="text-xs text-stone-400 ml-2">${s.grade}</span>` : '';
-            return `<button type="button" class="w-full text-left px-4 py-2.5 text-sm text-stone-700 hover:bg-amber-50 hover:text-amber-800 transition-colors flex items-center justify-between subject-option" data-name="${s.name}">
+            const gradeTag = s.grade ? `<span class="text-xs text-stone-400 dark:text-stone-500 ml-2">${s.grade}</span>` : '';
+            return `<button type="button" class="w-full text-left px-4 py-2.5 text-sm text-stone-700 dark:text-stone-200 hover:bg-amber-50 dark:hover:bg-stone-700 hover:text-amber-800 dark:hover:text-amber-400 transition-colors flex items-center justify-between subject-option" data-name="${s.name}">
                 ${s.name}${gradeTag}
             </button>`;
         }).join('');
