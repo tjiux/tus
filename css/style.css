@@ -224,6 +224,7 @@ nav .text-2xl.font-bold::after {
 
 /* 科目卡片入场动画 */
 .subject-card {
+    position: relative;
     opacity: 0;
     transform: translateY(16px);
     transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.25s ease;
@@ -235,6 +236,26 @@ nav .text-2xl.font-bold::after {
 .subject-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+/* 科目年级标记 — 右上角绝对定位 */
+.subj-grade {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1;
+}
+
+/* 科目标题溢出裁切 + 跑马灯 */
+.subject-card h2 {
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(to right, black 92%, transparent 100%);
+    mask-image: linear-gradient(to right, black 92%, transparent 100%);
+}
+.subject-card h2 .marquee-inner {
+    display: inline-block;
+    white-space: nowrap;
 }
 
 /* 试卷标题自适应淡出截断（百分比相对卡片宽度自动适配） */
