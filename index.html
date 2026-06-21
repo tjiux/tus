@@ -10,13 +10,14 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/announcement.css">
 </head>
-<body class="bg-gradient-to-br from-stone-100 to-amber-50/60 min-h-screen">
+<body class="bg-gradient-to-br from-stone-100 to-amber-50/60 dark:from-stone-900 dark:to-stone-800 min-h-screen">
     <!-- 导航栏 -->
-    <nav class="bg-white/80 backdrop-blur-sm border-b border-stone-200 sticky top-0 z-40">
+    <nav class="bg-white/80 dark:bg-[rgba(28,25,23,0.92)] backdrop-blur-sm border-b border-stone-200 dark:border-stone-700 sticky top-0 z-40">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="." class="text-2xl font-bold text-stone-800 tracking-tight">Tus</a>
+            <a href="." class="text-2xl font-bold text-stone-800 dark:text-stone-100 tracking-tight">Tus</a>
             <div class="flex items-center gap-3">
                 <span class="nav-announcement" id="navAnnouncement">公告</span>
+                <button class="dark-toggle" id="darkToggle" aria-label="切换暗色模式">🌙</button>
                 <a href="submit.html" class="bg-amber-700 text-white px-4 py-2.5 rounded-lg hover:bg-amber-800 text-sm font-medium transition-colors">提交试卷</a>
             </div>
         </div>
@@ -24,15 +25,15 @@
 
     <!-- 主内容 -->
     <main class="max-w-6xl mx-auto px-4 py-10">
-        <!-- 标题 -->
-        <div class="mb-8 text-center">
-            <h1 class="text-4xl font-bold text-stone-800 tracking-tight">北工大试卷共享库</h1>
-            <p class="text-stone-400 mt-2">北京工业大学 · 历年期中期末试题</p>
+        <!-- Hero 区 -->
+        <div class="mb-10 text-center">
+            <div class="hero-label">北京工业大学</div>
+            <h1 class="site-title">试卷共享库</h1>
         </div>
 
         <!-- 搜索 -->
         <div class="mb-4 max-w-xl mx-auto">
-            <input type="text" id="searchInput" placeholder="搜索科目..." class="w-full px-5 py-3 bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-stone-700 placeholder:text-stone-400">
+            <input type="text" id="searchInput" placeholder="搜索科目..." class="w-full px-5 py-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-300 shadow-sm text-stone-700 dark:text-stone-200 placeholder:text-stone-400 dark:placeholder:text-stone-500">
         </div>
 
         <!-- 年级筛选 -->
@@ -51,28 +52,28 @@
 
         <!-- 加载状态 -->
         <div id="loadingState" class="text-center py-20">
-            <div class="animate-spin h-8 w-8 border-2 border-stone-300 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p class="text-stone-400 text-sm">加载中...</p>
+            <div class="animate-spin h-8 w-8 border-2 border-stone-300 dark:border-stone-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p class="text-stone-400 dark:text-stone-500 text-sm">加载中...</p>
         </div>
 
         <!-- 空状态 -->
         <div id="emptyState" class="text-center py-20 hidden">
             <div class="text-5xl mb-4 opacity-60">📭</div>
-            <p class="text-stone-500 text-lg">还没有科目</p>
-            <p class="text-stone-400 mt-2 text-sm">点击右上角「新建科目」开始吧！</p>
+            <p class="text-stone-500 dark:text-stone-400 text-lg">还没有科目</p>
+            <p class="text-stone-400 dark:text-stone-500 mt-2 text-sm">点击右上角「新建科目」开始吧！</p>
         </div>
 
         <!-- 错误状态 -->
         <div id="errorState" class="text-center py-20 hidden">
             <div class="text-5xl mb-4 opacity-60">😵</div>
             <p class="text-red-500 text-lg">加载失败</p>
-            <p class="text-stone-400 mt-2 text-sm" id="errorMessage">请检查网络连接后刷新页面</p>
-            <button onclick="location.reload()" class="mt-4 bg-stone-700 text-white px-6 py-2.5 rounded-lg hover:bg-stone-800 transition-colors text-sm">刷新重试</button>
+            <p class="text-stone-400 dark:text-stone-500 mt-2 text-sm" id="errorMessage">请检查网络连接后刷新页面</p>
+            <button onclick="location.reload()" class="mt-4 bg-stone-700 dark:bg-stone-600 text-white px-6 py-2.5 rounded-lg hover:bg-stone-800 dark:hover:bg-stone-500 transition-colors text-sm">刷新重试</button>
         </div>
     </main>
 
     <!-- 页脚 -->
-    <footer class="text-center py-8 text-stone-400 text-xs">
+    <footer class="text-center py-8 text-stone-400 dark:text-stone-500 text-xs">
         <p>Tus · 北京工业大学试卷共享平台</p>
     </footer>
 
