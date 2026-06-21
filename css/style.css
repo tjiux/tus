@@ -516,12 +516,25 @@ main {
     to { transform: rotate(360deg); }
 }
 
-.preview-iframe {
+.preview-iframe,
+.word-container {
     width: 100%;
     flex: 1;
     border: none;
     background: #525252;
     min-height: 0;
+}
+.word-container {
+    background: #fff;
+    padding: 10px;
+    overflow-y: auto;
+}
+.word-container .docx-preview {
+    padding: 0;
+    margin: 0;
+}
+.word-container .docx-preview > * {
+    max-width: 100%;
 }
 
 /* 预览模式：卡片放大，全屏适配 */
@@ -610,6 +623,12 @@ html.dark .preview-loading .spinner {
 }
 html.dark .preview-iframe {
     background: #333;
+}
+html.dark .word-container {
+    background: #1c1917;
+}
+html.dark .word-container .docx-preview {
+    color: #d6cec4;
 }
 html.dark .detail-back-btn {
     background: #3d3630;
