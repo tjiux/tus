@@ -219,28 +219,20 @@ function showPaperDetail(paper) {
 
     var originalUrl = paper.fileUrl;
     var isPdf = !paper.isWord;
-    var officeUrl;
-    if (paper.isWord) {
-        // Office Online Viewer 需要完整 URL（http:// + 域名）
-        var absoluteUrl = originalUrl.indexOf('://') === -1
-            ? window.location.origin + originalUrl
-            : originalUrl;
-        officeUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(absoluteUrl);
-    }
+    var absoluteUrl = originalUrl.indexOf('://') === -1
+        ? window.location.origin + originalUrl
+        : originalUrl;
 
-    // PDF: iframe → preview.html（有 CDN 备降）
-    // Word: 新标签页打开 Office Viewer
-    var viewerHtml = isPdf
-        ? '<iframe class="preview-iframe" id="previewIframe" src="about:blank"></iframe>'
-        : '';
-
-    // PDF 预览 URL（传给 preview.html）
-    var pdfPreviewUrl;
+    // 预览 URL
+    // PDF → preview.html（CDN 备降）；Word → Google Docs Viewer（手机端友好）
+    var previewUrl;
+    var viewerHtml;
     if (isPdf) {
-        var absolutePdfUrl = originalUrl.indexOf('://') === -1
-            ? window.location.origin + originalUrl
-            : originalUrl;
-        pdfPreviewUrl = 'preview.html?url=' + encodeURIComponent(absolutePdfUrl);
+        previewUrl = 'preview.html?url=' + encodeURIComponent(absoluteUrl);
+        viewerHtml = '<iframe class="preview-iframe" id="previewIframe" src="about:blank"></iframe>';
+    } else {
+        previewUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(absoluteUrl) + '&embedded=true';
+        viewerHtml = '<iframe class="preview-iframe" id="previewIframe" src="about:blank" allowfullscreen></iframe>';
     }
 
     overlay.innerHTML =
@@ -258,22 +250,18 @@ function showPaperDetail(paper) {
         + '<div class="detail-row"><span class="detail-label">上传者</span><span class="detail-value">' + escapeHtml(paper.uploaded_by || '匿名') + '</span></div>'
         + '</div>'
 
-        // 预览区（初始隐藏，仅 PDF 有）
-        + (isPdf
-            ? '<div class="preview-container" id="previewContainer" style="display:none">'
-            +   '<div class="preview-loading" id="previewLoading">'
-            +     '<div class="spinner"></div>'
-            +     '<p>正在加载预览...</p>'
-            +   '</div>'
-            +   viewerHtml
-            + '</div>'
-            : '')
+        // 预览区（初始隐藏）
+        + '<div class="preview-container" id="previewContainer" style="display:none">'
+        +   '<div class="preview-loading" id="previewLoading">'
+        +     '<div class="spinner"></div>'
+        +     '<p>正在加载预览...</p>'
+        +   '</div>'
+        +   viewerHtml
+        + '</div>'
 
         // 底部按钮
         + '<div class="detail-footer detail-footer-triple" id="detailFooter">'
-        + (isPdf
-            ? '<button class="detail-preview-btn" id="previewBtn" data-previewurl="' + escapeAttr(pdfPreviewUrl) + '">在线预览</button>'
-            : '<a href="' + escapeAttr(officeUrl) + '" target="_blank" rel="noopener" class="detail-preview-btn">在线预览</a>')
+        + '<button class="detail-preview-btn" id="previewBtn" data-previewurl="' + escapeAttr(previewUrl) + '" data-ispdf="' + (isPdf ? '1' : '0') + '">在线预览</button>'
         + '<a href="' + escapeAttr(originalUrl) + '" download="' + escapeAttr(paper.downloadName) + '" class="detail-download-btn">下载文件</a>'
         + '<button class="detail-close-btn" id="closeBtn">关闭</button>'
         + '</div>'
@@ -306,8 +294,11 @@ function enterPreviewMode(overlay) {
     var previewLoading = overlay.querySelector('#previewLoading');
     var previewBtn = overlay.querySelector('#previewBtn');
 
-    // 获取预览 URL（preview.html?url=...）
+    // 获取预览 URL
     var previewUrl = previewBtn.dataset.previewurl || '';
+    // 记住文件类型（用于退出时重建按钮）
+    var isPdf = previewBtn.dataset.ispdf === '1';
+    card.dataset.previewIsPdf = isPdf ? '1' : '0';
 
     // 切换头部文字
     header.textContent = '预览';
@@ -330,7 +321,7 @@ function enterPreviewMode(overlay) {
     // 卡片切换到预览模式（样式放大）
     card.classList.add('preview-mode');
 
-    // 通过 iframe 加载 preview.html（它有 CDN 备降逻辑）
+    // 加载 iframe 预览
     var iframe = overlay.querySelector('#previewIframe');
     if (iframe) {
         iframe.src = previewUrl;
@@ -371,14 +362,23 @@ function exitPreviewMode(overlay) {
     body.style.display = '';
     previewContainer.style.display = 'none';
 
-    // 返回按钮 → 预览按钮
+    // 返回按钮 → 预览按钮（从 card.dataset 读取文件类型）
     var backBtn = overlay.querySelector('#previewBtn');
     if (backBtn) {
+        var isPdf = card.dataset.previewIsPdf !== '0';
         var downloadHref = card.querySelector('.detail-download-btn').getAttribute('href');
+        var absoluteUrl = downloadHref.indexOf('://') === -1
+            ? window.location.origin + downloadHref
+            : downloadHref;
+        var newPreviewUrl = isPdf
+            ? 'preview.html?url=' + encodeURIComponent(absoluteUrl)
+            : 'https://docs.google.com/viewer?url=' + encodeURIComponent(absoluteUrl) + '&embedded=true';
+
         var previewBtn = document.createElement('button');
         previewBtn.className = 'detail-preview-btn';
         previewBtn.id = 'previewBtn';
-        previewBtn.dataset.previewurl = downloadHref;
+        previewBtn.dataset.previewurl = newPreviewUrl;
+        previewBtn.dataset.ispdf = isPdf ? '1' : '0';
         previewBtn.textContent = '在线预览';
         previewBtn.addEventListener('click', function() {
             enterPreviewMode(overlay);
