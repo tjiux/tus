@@ -258,7 +258,9 @@ function closePaperDetail(overlay) {
 // ========== 跑马灯滚动（scrollLeft + mask 遮罩固定不动） ==========
 function startMarquee(el) {
     if (el._marqueeActive) return;
+    var maxPossible = el.scrollWidth - el.clientWidth;
     var maxScroll = Math.ceil(el.scrollWidth - el.clientWidth * 0.93);
+    if (maxScroll > maxPossible) maxScroll = maxPossible;
     if (maxScroll <= 1) return;
 
     el._marqueeActive = true;
