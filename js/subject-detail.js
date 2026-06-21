@@ -219,15 +219,19 @@ function showPaperDetail(paper) {
 
     var originalUrl = paper.fileUrl;
     var isPdf = !paper.isWord;
-    var previewUrl;
+    var officeUrl;
     if (paper.isWord) {
-        previewUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(originalUrl);
+        // Office Online Viewer 需要完整 URL（http:// + 域名）
+        var absoluteUrl = originalUrl.indexOf('://') === -1
+            ? window.location.origin + originalUrl
+            : originalUrl;
+        officeUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(absoluteUrl);
     }
 
-    // 预览区 HTML（PDF 用 embed，Word 用 iframe）
+    // 预览区 HTML（仅 PDF 需要，Word 直接新标签页打开）
     var viewerHtml = isPdf
         ? '<embed class="preview-embed" id="previewEmbed" type="application/pdf" src="about:blank">'
-        : '<iframe class="preview-iframe" id="previewIframe" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>';
+        : '';
 
     overlay.innerHTML =
         '<div class="paper-detail-card" id="paperDetailCard">'
@@ -255,7 +259,9 @@ function showPaperDetail(paper) {
 
         // 底部按钮
         + '<div class="detail-footer detail-footer-triple" id="detailFooter">'
-        + '<button class="detail-preview-btn" id="previewBtn" data-previewurl="' + escapeAttr(isPdf ? originalUrl : previewUrl) + '" data-ispdf="' + (isPdf ? '1' : '0') + '">在线预览</button>'
+        + (isPdf
+            ? '<button class="detail-preview-btn" id="previewBtn" data-previewurl="' + escapeAttr(originalUrl) + '">在线预览</button>'
+            : '<a href="' + escapeAttr(officeUrl) + '" target="_blank" rel="noopener" class="detail-preview-btn">在线预览</a>')
         + '<a href="' + escapeAttr(originalUrl) + '" download="' + escapeAttr(paper.downloadName) + '" class="detail-download-btn">下载文件</a>'
         + '<button class="detail-close-btn" id="closeBtn">关闭</button>'
         + '</div>'
@@ -265,9 +271,12 @@ function showPaperDetail(paper) {
         if (e.target === overlay) closePaperDetail(overlay);
     });
 
-    overlay.querySelector('#previewBtn').addEventListener('click', function() {
-        enterPreviewMode(overlay);
-    });
+    var previewBtn = overlay.querySelector('#previewBtn');
+    if (previewBtn) {
+        previewBtn.addEventListener('click', function() {
+            enterPreviewMode(overlay);
+        });
+    }
 
     overlay.querySelector('#closeBtn').addEventListener('click', function() {
         closePaperDetail(overlay);
@@ -285,9 +294,8 @@ function enterPreviewMode(overlay) {
     var previewLoading = overlay.querySelector('#previewLoading');
     var previewBtn = overlay.querySelector('#previewBtn');
 
-    // 获取预览参数
+    // 获取预览 URL
     var previewUrl = previewBtn.dataset.previewurl || '';
-    var isPdf = previewBtn.dataset.ispdf === '1';
 
     // 切换头部文字
     header.textContent = '预览';
@@ -310,10 +318,8 @@ function enterPreviewMode(overlay) {
     // 卡片切换到预览模式（样式放大）
     card.classList.add('preview-mode');
 
-    // 加载预览内容
-    var viewer = isPdf
-        ? overlay.querySelector('#previewEmbed')
-        : overlay.querySelector('#previewIframe');
+    // 加载 PDF 预览
+    var viewer = overlay.querySelector('#previewEmbed');
 
     if (viewer) {
         viewer.style.display = 'none';
@@ -368,22 +374,18 @@ function exitPreviewMode(overlay) {
 
     // 返回按钮 → 预览按钮
     var backBtn = overlay.querySelector('#previewBtn');
-    var downloadHref = card.querySelector('.detail-download-btn').getAttribute('href');
-    var isWord = /\.docx?$/i.test(downloadHref);
-    var previewUrl = isWord
-        ? 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(downloadHref)
-        : downloadHref;  // PDF 直接用原 URL
-
-    var previewBtn = document.createElement('button');
-    previewBtn.className = 'detail-preview-btn';
-    previewBtn.id = 'previewBtn';
-    previewBtn.dataset.previewurl = previewUrl;
-    previewBtn.dataset.ispdf = isWord ? '0' : '1';
-    previewBtn.textContent = '在线预览';
-    previewBtn.addEventListener('click', function() {
-        enterPreviewMode(overlay);
-    });
-    backBtn.parentNode.replaceChild(previewBtn, backBtn);
+    if (backBtn) {
+        var downloadHref = card.querySelector('.detail-download-btn').getAttribute('href');
+        var previewBtn = document.createElement('button');
+        previewBtn.className = 'detail-preview-btn';
+        previewBtn.id = 'previewBtn';
+        previewBtn.dataset.previewurl = downloadHref;
+        previewBtn.textContent = '在线预览';
+        previewBtn.addEventListener('click', function() {
+            enterPreviewMode(overlay);
+        });
+        backBtn.parentNode.replaceChild(previewBtn, backBtn);
+    }
 
     // 移除预览样式
     card.classList.remove('preview-mode');
