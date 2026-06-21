@@ -80,17 +80,18 @@
 
 /* —— 朱砂印章 —— */
 .announcement-seal {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border: 2px solid #b91c1c;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    font-family: 'STXingkai', 'KaiTi', 'Noto Serif SC', serif;
-    font-size: 16px;
+    font-family: Georgia, 'Noto Serif SC', serif;
+    font-size: 17px;
     font-weight: 700;
+    font-style: italic;
     color: #b91c1c;
     letter-spacing: 0;
     animation: seal-fade-in 0.6s ease 0.3s both;
@@ -124,16 +125,6 @@
     font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
 }
 
-.announcement-title .dot {
-    display: inline-block;
-    width: 4px;
-    height: 4px;
-    background: #b91c1c;
-    border-radius: 50%;
-    vertical-align: middle;
-    margin: 0 4px;
-    opacity: 0.6;
-}
 
 /* —— 正文 —— */
 .announcement-body {
@@ -197,7 +188,8 @@
     font-size: 11px;
     font-weight: 700;
     color: #b91c1c;
-    font-family: 'STXingkai', 'KaiTi', 'Noto Serif SC', serif;
+    font-family: Georgia, 'Noto Serif SC', serif;
+    font-style: italic;
     line-height: 1;
 }
 
@@ -283,9 +275,6 @@ html.dark .announcement-seal {
 html.dark .announcement-title {
     color: #ece6de;
 }
-html.dark .announcement-title .dot {
-    background: #dc2626;
-}
 html.dark .announcement-header-row {
     border-bottom-color: #3d3630;
 }
@@ -342,12 +331,6 @@ html.dark .announcement-btn:hover {
     .announcement-title {
         font-size: 20px;
         letter-spacing: 6px;
-    }
-
-    .announcement-title .dot {
-        width: 3px;
-        height: 3px;
-        margin: 0 3px;
     }
 
     .announcement-body {
