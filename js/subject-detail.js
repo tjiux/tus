@@ -214,26 +214,26 @@ function showPaperDetail(paper) {
     overlay.className = 'paper-detail-overlay';
     overlay.id = 'paperDetailOverlay';
 
-    var gradeRow = paper.grade ? '<div class="detail-row"><span class="detail-label">年级</span><span>' + escapeHtml(paper.grade) + '</span></div>' : '';
+    var gradeRow = paper.grade ? '<div class="detail-row"><span class="detail-label">年级</span><span class="detail-value">' + escapeHtml(paper.grade) + '</span></div>' : '';
 
     var previewUrl = paper.fileUrl;
     if (paper.isWord) {
         previewUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(paper.fileUrl);
     }
 
-    var setterRow = paper.setter ? '<div class="detail-row"><span class="detail-label">出卷人</span><span>' + escapeHtml(paper.setter) + '</span></div>' : '';
+    var setterRow = paper.setter ? '<div class="detail-row"><span class="detail-label">出卷人</span><span class="detail-value">' + escapeHtml(paper.setter) + '</span></div>' : '';
 
     overlay.innerHTML =
         '<div class="paper-detail-card">'
         + '<div class="detail-header">试卷信息</div>'
         + '<div class="detail-body">'
         + '<div class="detail-row"><span class="detail-label">标题</span><span class="detail-value">' + escapeHtml(paper.title) + '</span></div>'
-        + '<div class="detail-row"><span class="detail-label">年份</span><span>' + paper.year + '年</span></div>'
-        + '<div class="detail-row"><span class="detail-label">学期</span><span>' + escapeHtml(paper.semester) + '</span></div>'
+        + '<div class="detail-row"><span class="detail-label">年份</span><span class="detail-value">' + paper.year + '年</span></div>'
+        + '<div class="detail-row"><span class="detail-label">学期</span><span class="detail-value">' + escapeHtml(paper.semester) + '</span></div>'
         + gradeRow
-        + '<div class="detail-row"><span class="detail-label">文件</span><span>' + paper.fileSize + '</span></div>'
+        + '<div class="detail-row"><span class="detail-label">文件</span><span class="detail-value">' + paper.fileSize + '</span></div>'
         + setterRow
-        + '<div class="detail-row"><span class="detail-label">上传者</span><span>' + escapeHtml(paper.uploaded_by || '匿名') + '</span></div>'
+        + '<div class="detail-row"><span class="detail-label">上传者</span><span class="detail-value">' + escapeHtml(paper.uploaded_by || '匿名') + '</span></div>'
         + '</div>'
         + '<div class="detail-footer detail-footer-triple">'
         + '<a href="' + previewUrl + '" target="_blank" rel="noopener" class="detail-preview-btn">在线预览</a>'
