@@ -464,8 +464,14 @@ async function handleSubmission(issue) {
         const encodedPath = encodeURI(repoPath);
         const pagesUrl = `https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/${encodedPath}`;
         const rawFileUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${encodedPath}`;
-        // 直接使用 GitHub Pages URL — 和网站预览一样，支持 PDF 和 Office 文档
-        console.log(`    🔗 在线预览: ${pagesUrl}`);
+        const ext = path.extname(repoPath).toLowerCase();
+        if (ext === '.pdf') {
+            // PDF：GitHub Pages 直接渲染（浏览器内联显示）
+            console.log(`    🔗 在线预览: ${pagesUrl}`);
+        } else {
+            // Word/Office：Office Online Viewer 在线渲染
+            console.log(`    🔗 在线预览: https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawFileUrl)}`);
+        }
         console.log(`    🔗 原始下载: ${rawFileUrl}`);
     }
     if (pdfUrl) console.log(`    PDF链接: ${pdfUrl}`);
