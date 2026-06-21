@@ -299,6 +299,8 @@ function githubAPI(method, path, body) {
             }
         };
 
+        const TIMEOUT = 15000; // 15 秒超时，防止在中国内地访问 GitHub API 时卡死
+
         // 对含 body 的请求设置 Content-Type
         if (body) {
             const bodyStr = JSON.stringify(body);
@@ -312,6 +314,7 @@ function githubAPI(method, path, body) {
                     catch { resolve({ status: res.statusCode, data: data }); }
                 });
             });
+            req.setTimeout(TIMEOUT, () => { req.destroy(new Error('API 超时')); });
             req.on('error', reject);
             req.write(bodyStr);
             req.end();
@@ -324,6 +327,7 @@ function githubAPI(method, path, body) {
                     catch { resolve({ status: res.statusCode, data: data }); }
                 });
             });
+            req.setTimeout(TIMEOUT, () => { req.destroy(new Error('API 超时')); });
             req.on('error', reject);
             req.end();
         }
