@@ -51,16 +51,18 @@ html.dark body::after {
     line-height: 1;
     touch-action: manipulation;
 }
-.dark-toggle:hover {
-    color: #44403c;
-    background: rgba(68, 64, 60, 0.08);
-}
 html.dark .dark-toggle {
     color: #a8a29e;
 }
-html.dark .dark-toggle:hover {
-    color: #f5f5f4;
-    background: rgba(255, 255, 255, 0.08);
+@media (hover: hover) {
+    .dark-toggle:hover {
+        color: #44403c;
+        background: rgba(68, 64, 60, 0.08);
+    }
+    html.dark .dark-toggle:hover {
+        color: #f5f5f4;
+        background: rgba(255, 255, 255, 0.08);
+    }
 }
 
 /* ===== 回到顶部按钮 ===== */
