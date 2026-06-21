@@ -199,6 +199,9 @@ body::after {
     letter-spacing: 4px;
     line-height: 1.3;
 }
+html.dark .site-title {
+    color: #ece6de;
+}
 @media (max-width: 640px) {
     .site-title { font-size: 1.75rem; letter-spacing: 2px; }
 }
