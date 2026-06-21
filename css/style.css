@@ -526,17 +526,26 @@ main {
     min-height: 0;
 }
 .word-container {
-    background: #fff;
-    padding: 10px;
+    background: #525252;  /* 与 PDF 容器背景一致 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
     overflow-y: auto;
     overflow-x: hidden;
-    word-wrap: break-word;
 }
 .word-container .docx-preview {
-    padding: 0;
-    margin: 0;
-    max-width: 100%;
+    background: #fff;
+    width: 100%;
+    max-width: 720px;
+    padding: 24px 20px;
+    margin: 0 0 4px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 2px;
+    box-sizing: border-box;
     overflow-x: hidden;
+    word-wrap: break-word;
 }
 .word-container .docx-preview > * {
     max-width: 100% !important;
@@ -660,10 +669,11 @@ html.dark .preview-iframe {
     background: #333;
 }
 html.dark .word-container {
-    background: #1c1917;
+    background: #333;
 }
 html.dark .word-container .docx-preview {
-    color: #d6cec4;
+    background: #fff;
+    color: #1c1917;  /* 深色文字保持可读 */
 }
 html.dark .detail-back-btn {
     background: #3d3630;
