@@ -266,7 +266,7 @@ function startMarquee(el) {
     el._marqueeActive = true;
     el.scrollLeft = 0;
 
-    var speed = 1;
+    var speed = 0.6;
     var dir = 1;
     var paused = false;
     var PAUSE_MS = 2000; // 两端暂停 2 秒
