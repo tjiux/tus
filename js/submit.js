@@ -11,7 +11,7 @@
 // GitHub 配置（双重混淆：反转+Base64，避免触发密钥扫描）
 const _tokenEncoded = 'TGhzR2QyS2FJcjhIWWVVN21uUUFyd3lOT0VDTU5mSWpWYXA2X3BoZw==';
 const GITHUB_TOKEN = atob(_tokenEncoded).split('').reverse().join('');
-const GITHUB_OWNER = 'tjiux';
+const GITHUB_OWNER = 'HaximTus';
 const GITHUB_REPO = 'tus';
 
 // 兜底：如果 api-client.js 未加载
