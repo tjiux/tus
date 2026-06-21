@@ -1,9 +1,8 @@
 /* Tus - 北京工业大学试卷共享平台 */
 /* 基础样式 - Tailwind 覆盖 */
 
+/* 基础 reset — Tailwind v4 的 @layer base 已处理 margin/padding，此处只保留 box-sizing */
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
 
@@ -11,18 +10,57 @@ body {
     font-family: 'Noto Serif SC', 'SimSun', 'STSong', serif;
 }
 
-/* 科目卡片动画 */
-.subject-card {
+/* ===== 回到顶部按钮 ===== */
+.back-to-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 800;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #44403c;
+    color: #f5f0ea;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
     transition: all 0.25s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
 }
-.subject-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+.back-to-top.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+.back-to-top:hover {
+    background: #5a5048;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+}
+.back-to-top:active {
+    background: #33302c;
+    transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+    .back-to-top {
+        bottom: 16px;
+        right: 16px;
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
 }
 
 /* 试卷卡片 */
 .paper-card {
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     cursor: pointer;
 }
 .paper-card:active {
@@ -31,11 +69,22 @@ body {
 @media (hover: hover) {
     .paper-card:hover {
         background-color: #f5f0ea;
+        border-color: #d6cec4;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     }
 }
 
+/* 科目卡片搜索高亮匹配 */
+.subject-card {
+    transition: all 0.25s ease;
+}
+.subject-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
 /* 试卷标题自适应淡出截断（百分比相对卡片宽度自动适配） */
-.paper-card h3 {
+.paper-card h2 {
     overflow: hidden;
     white-space: nowrap;
     -webkit-mask-image: linear-gradient(to right, black 92%, transparent 100%);
@@ -43,7 +92,7 @@ body {
 }
 
 /* 长标题跑马灯 — 用 scrollLeft 实现，mask 固定在卡片边缘不动 */
-.paper-card h3.marquee-scroll {
+.paper-card h2.marquee-scroll {
     scroll-behavior: auto;
 }
 
