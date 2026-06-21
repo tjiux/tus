@@ -224,14 +224,14 @@ function showPaperDetail(paper) {
         : originalUrl;
 
     // 预览 URL
-    // PDF → preview.html（CDN 备降）；Word → Google Docs Viewer（手机端友好）
+    // PDF → preview.html（CDN 备降）；Word → Office Online Viewer
     var previewUrl;
     var viewerHtml;
     if (isPdf) {
         previewUrl = 'preview.html?url=' + encodeURIComponent(absoluteUrl);
         viewerHtml = '<iframe class="preview-iframe" id="previewIframe" src="about:blank"></iframe>';
     } else {
-        previewUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(absoluteUrl) + '&embedded=true';
+        previewUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(absoluteUrl);
         viewerHtml = '<iframe class="preview-iframe" id="previewIframe" src="about:blank" allowfullscreen></iframe>';
     }
 
@@ -332,9 +332,12 @@ function enterPreviewMode(overlay) {
     }
 
     // 超时提示（退出预览时需清除）
+    var dlHref = card.querySelector('.detail-download-btn').getAttribute('href');
     card._previewTimeoutId = setTimeout(function() {
         if (previewLoading.style.display !== 'none') {
-            previewLoading.innerHTML = '<p style="color:#9e9488;font-size:13px;">加载较慢，试试 <a href="' + previewUrl + '" target="_blank" rel="noopener" style="color:#ca8a04;">在新标签页打开</a></p>';
+            previewLoading.innerHTML = '<p style="color:#9e9488;font-size:13px;line-height:1.8;">'
+                + '加载较慢，试试 <a href="' + previewUrl + '" target="_blank" rel="noopener" style="color:#ca8a04;">在新标签页预览</a>'
+                + '<br>或 <a href="' + dlHref + '" download style="color:#ca8a04;">直接下载文件</a></p>';
         }
     }, 8000);
 }
@@ -372,7 +375,7 @@ function exitPreviewMode(overlay) {
             : downloadHref;
         var newPreviewUrl = isPdf
             ? 'preview.html?url=' + encodeURIComponent(absoluteUrl)
-            : 'https://docs.google.com/viewer?url=' + encodeURIComponent(absoluteUrl) + '&embedded=true';
+            : 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(absoluteUrl);
 
         var previewBtn = document.createElement('button');
         previewBtn.className = 'detail-preview-btn';
