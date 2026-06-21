@@ -467,9 +467,9 @@ async function handleSubmission(issue) {
         const rawFileUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${encodedPath}`;
         const ext = path.extname(repoPath).toLowerCase();
         if (ext === '.pdf') {
-            // PDF.js 预览页 — 从 jsDelivr 拉取渲染（速度快，国内可访问）
-            var cdnUrl = encodeURIComponent(`https://cdn.jsdelivr.net/gh/${GITHUB_OWNER}/${GITHUB_REPO}@main/${encodedPath}`);
-            console.log(`    🔗 在线预览: https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/preview.html?url=${cdnUrl}`);
+            // 浏览器原生 PDF 渲染 — 使用 GitHub Pages 链接（零外部依赖）
+            var pagesUrl = encodeURIComponent(`https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/${encodedPath}`);
+            console.log(`    🔗 在线预览: https://${GITHUB_OWNER}.github.io/${GITHUB_REPO}/preview.html?url=${pagesUrl}`);
         } else {
             // Word/Office：Office Online Viewer 在线渲染
             console.log(`    🔗 在线预览: https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawFileUrl)}`);
