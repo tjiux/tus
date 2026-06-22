@@ -7,7 +7,7 @@ Tus 是一个面向北京工业大学学生的试卷共享平台，部署在 Git
 `C:\Users\Haxim\Tus\`
 
 ## 上线地址
-**[https://HaximTus.github.io/tus/](https://HaximTus.github.io/tus/)**
+**https://haximtus.cn/**
 
 ## 联系方式 / 维护者
 - GitHub: **HaximTus**
