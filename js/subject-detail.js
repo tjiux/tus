@@ -351,25 +351,41 @@ function enterPreviewMode(overlay) {
         var dlHref = card.querySelector('.detail-download-btn').getAttribute('href');
 
         function renderPdf() {
-            previewLoading.querySelector('p').textContent = '正在渲染 PDF...';
+            previewLoading.querySelector('p').textContent = '正在加载 PDF...';
             var base = (window.location.pathname.indexOf('/tus/') >= 0 ? '/tus' : '');
 
             import(base + '/js/pdf.min.mjs').then(function(pdfjs) {
                 pdfjs.GlobalWorkerOptions.workerSrc = base + '/js/pdf.worker.min.mjs';
-                // 浏览器 HTTP 缓存已由 preloadPdfs 预热，此处直接 fetch 走缓存
                 return fetch(previewUrl).then(function(r) { return r.arrayBuffer(); })
                 .then(function(buffer) {
-                    return pdfjs.getDocument({ data: buffer }).promise;
+                    // 流式加载 + iOS 兼容
+                    var docOptions = {
+                        data: buffer,
+                        disableAutoFetch: true,     // 避免一次性下载
+                        rangeChunkSize: 65536,      // 分块读取
+                    };
+                    // iOS Safari 关闭离屏 Canvas（避免 384MB 内存上限崩溃）
+                    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                        docOptions.isOffscreenCanvasSupported = false;
+                    }
+                    return pdfjs.getDocument(docOptions).promise;
                 })
                 .then(function(doc) {
-                    previewLoading.style.display = 'none';
                     pdfContainer.style.display = '';
                     pdfContainer.innerHTML = '';
-                    // 渲染所有页面
-                    var renderNext = function(pageNum) {
+
+                    var mobile = window.innerWidth < 640;
+
+                    // 逐页渲染，首页就绪立即显示（不等全部）
+                    var pageNum = 1;
+                    function renderPage() {
                         if (pageNum > doc.numPages) return;
-                        doc.getPage(pageNum).then(function(page) {
-                            var scale = Math.min(1.5, (pdfContainer.clientWidth - 20) / page.getViewport({scale:1}).width);
+                        var p = pageNum;
+                        doc.getPage(p).then(function(page) {
+                            // 手机端降低渲染分辨率以提升速度
+                            var maxScale = mobile ? 0.8 : 1.5;
+                            var scale = Math.min(maxScale, (pdfContainer.clientWidth - 20) / page.getViewport({scale:1}).width);
+                            if (mobile) scale = Math.min(scale, 1.0);
                             var viewport = page.getViewport({scale: scale});
                             var canvas = document.createElement('canvas');
                             canvas.className = 'pdf-page';
@@ -380,11 +396,17 @@ function enterPreviewMode(overlay) {
                                 canvasContext: canvas.getContext('2d'),
                                 viewport: viewport
                             }).promise.then(function() {
-                                renderNext(pageNum + 1);
+                                // 第一页完成后立即隐藏 loading
+                                if (p === 1) {
+                                    previewLoading.style.display = 'none';
+                                }
+                                pageNum++;
+                                // 剩余页面延迟渲染，不阻塞 UI
+                                setTimeout(renderPage, mobile ? 50 : 10);
                             });
                         });
-                    };
-                    return renderNext(1);
+                    }
+                    renderPage();
                 });
             }).catch(function(e) {
                 console.warn('PDF.js 渲染失败:', e);
