@@ -208,30 +208,25 @@ document.addEventListener('DOMContentLoaded', async function() {
     preloadPdfs(allPapers);
 });
 
-// ========== PDF 预加载缓存 ==========
-var _pdfCache = {};
-
+// ========== PDF 预加载（利用浏览器 HTTP 缓存，低优先级并发） ==========
 function getAbsoluteUrl(url) {
     return url.indexOf('://') === -1 ? window.location.origin + url : url;
 }
 
 function preloadPdfs(papers) {
+    var count = 0;
     for (var i = 0; i < papers.length; i++) {
         var p = papers[i];
-        // 只预加载 PDF，不预加载 Word
         var ext = (p.file_name || p.file_path || '').split('.').pop().toLowerCase();
         if (ext !== 'pdf') continue;
-        var rawPath = p.file_path || '';
-        var encodedPath = encodeURI(rawPath);
+        // 限制最多预取 3 个，页面有几十个试卷时不影响网速
+        if (++count > 3) break;
+        var encodedPath = encodeURI(p.file_path || '');
         var fileUrl = p.file_url || getBaseUrl() + '/assets/papers/' + encodedPath;
         var absUrl = getAbsoluteUrl(fileUrl);
-        // 低优先级后台 fetch，结果缓存到 _pdfCache
-        fetch(absUrl).then(function(resp) {
-            if (!resp.ok) return null;
-            return resp.arrayBuffer();
-        }).then(function(buf) {
-            if (buf) _pdfCache[absUrl] = buf;
-        }).catch(function() { /* 静默失败，不影响用户体验 */ });
+        // 只 fetch 不存结果，浏览器 HTTP 缓存会自动保存
+        // 用户点击预览时 fetch 会直接从磁盘读取，几乎无延迟
+        fetch(absUrl, { cache: 'force-cache' }).catch(function() {});
     }
 }
 
@@ -359,15 +354,10 @@ function enterPreviewMode(overlay) {
             previewLoading.querySelector('p').textContent = '正在渲染 PDF...';
             var base = (window.location.pathname.indexOf('/tus/') >= 0 ? '/tus' : '');
 
-            // 优先使用预加载缓存
-            var pdfData = _pdfCache[getAbsoluteUrl(previewUrl)];
-            var fetchPromise = pdfData
-                ? Promise.resolve(pdfData)
-                : fetch(previewUrl).then(function(r) { return r.arrayBuffer(); });
-
             import(base + '/js/pdf.min.mjs').then(function(pdfjs) {
                 pdfjs.GlobalWorkerOptions.workerSrc = base + '/js/pdf.worker.min.mjs';
-                return fetchPromise
+                // 浏览器 HTTP 缓存已由 preloadPdfs 预热，此处直接 fetch 走缓存
+                return fetch(previewUrl).then(function(r) { return r.arrayBuffer(); })
                 .then(function(buffer) {
                     return pdfjs.getDocument({ data: buffer }).promise;
                 })
