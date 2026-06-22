@@ -338,7 +338,7 @@ async function saveSubject(id) {
     if (!s) { showToast('科目不存在', 'error'); return; }
     s.name = name; s.grade = grade; s.teacher = teacher;
     var ok = await uploadFile('data/subjects.json', JSON.stringify(subs, null, 4), 'Edit subject: ' + name);
-    if (ok) { showToast('已保存'); closeModal(); loadSubjects(); } else showToast('保存失败', 'error');
+    if (ok) { showToast('已保存'); closeModal(); setTimeout(loadSubjects, 1200); } else showToast('保存失败', 'error');
 }
 
 async function deleteSubject(id) {
@@ -355,7 +355,7 @@ async function deleteSubject(id) {
     papers = papers.filter(function(p) { return p.subject_id !== id; });
     var ok1 = await uploadFile('data/subjects.json', JSON.stringify(subs, null, 4), 'Delete subject: ' + subName);
     var ok2 = await uploadFile('data/papers.json', JSON.stringify(papers, null, 4), 'Delete papers for subject: ' + subName);
-    if (ok1 && ok2) { showToast('已删除'); loadSubjects(); } else showToast('删除失败', 'error');
+    if (ok1 && ok2) { showToast('已删除'); setTimeout(loadSubjects, 1200); } else showToast('删除失败', 'error');
 }
 
 // ========== 试卷管理 ==========
@@ -427,7 +427,7 @@ async function addPaper() {
     var maxId = papers.reduce(function(m, p) { return Math.max(m, p.id); }, 0);
     papers.push({ id: maxId + 1, subject_id: subjId, title: title, year: year, semester: sem, setter: setter, file_url: '', file_path: filePath, file_name: filePath, file_size: 0, uploaded_by: uploader, created_at: new Date().toISOString().split('T')[0] });
     var ok = await uploadFile('data/papers.json', JSON.stringify(papers, null, 4), 'Add paper: ' + title);
-    if (ok) { showToast('试卷已添加'); closeModal(); loadPapers(); } else showToast('添加失败', 'error');
+    if (ok) { showToast('试卷已添加'); closeModal(); setTimeout(loadPapers, 1200); } else showToast('添加失败', 'error');
 }
 
 function editPaper(id) {
@@ -472,7 +472,7 @@ async function savePaper(id) {
     if (!p) { showToast('试卷不存在', 'error'); return; }
     p.subject_id = subjId; p.title = title; p.year = year; p.semester = sem; p.file_path = filePath; p.file_name = filePath; p.setter = $('modalPaperSetter').value.trim(); p.uploaded_by = uploader;
     var ok = await uploadFile('data/papers.json', JSON.stringify(papers, null, 4), 'Edit paper: ' + title);
-    if (ok) { showToast('已保存'); closeModal(); loadPapers(); } else showToast('保存失败', 'error');
+    if (ok) { showToast('已保存'); closeModal(); setTimeout(loadPapers, 1200); } else showToast('保存失败', 'error');
 }
 
 async function deletePaper(id) {
@@ -483,7 +483,7 @@ async function deletePaper(id) {
     var title = (papers.find(function(x) { return x.id === id; }) || {}).title;
     papers = papers.filter(function(p) { return p.id !== id; });
     var ok = await uploadFile('data/papers.json', JSON.stringify(papers, null, 4), 'Delete paper: ' + title);
-    if (ok) { showToast('已删除'); loadPapers(); } else showToast('删除失败', 'error');
+    if (ok) { showToast('已删除'); setTimeout(loadPapers, 1200); } else showToast('删除失败', 'error');
 }
 
 // ========== 审核提交 ==========
