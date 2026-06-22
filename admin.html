@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tus 管理后台</title>
+    <link rel="icon" href="favicon.svg">
+    <script>if(localStorage.getItem('tus_dark')==='1')document.documentElement.classList.add('dark')</script>
+    <link rel="stylesheet" href="css/tailwind.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=4">
+    <style>
+        /* Admin layout */
+        .admin-sidebar { width: 220px; flex-shrink: 0; }
+        .admin-content { flex: 1; min-width: 0; }
+        .admin-sidebar a.active { background: #ca8a04; color: #292524; }
+        html.dark .admin-sidebar a.active { background: #eab308; color: #1c1917; }
+        .admin-sidebar a { transition: all 0.15s ease; }
+        @media (max-width: 640px) {
+            .admin-sidebar { width: 100%; position: static; }
+            .admin-layout { flex-direction: column; }
+        }
+        /* Login */
+        .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        /* Table */
+        .admin-table { width: 100%; border-collapse: collapse; }
+        .admin-table th { text-align: left; padding: 10px 12px; font-size: 12px; color: #8a7e72; border-bottom: 1px solid #e4dcd2; font-weight: 600; }
+        .admin-table td { padding: 10px 12px; font-size: 14px; border-bottom: 1px solid #f0eae2; }
+        html.dark .admin-table th { color: #8a7e72; border-bottom-color: #3d3630; }
+        html.dark .admin-table td { border-bottom-color: #2d2824; }
+        .admin-table tr:hover td { background: #faf5ef; }
+        html.dark .admin-table tr:hover td { background: #2d2824; }
+        /* Cards */
+        .stat-card { flex: 1; min-width: 120px; }
+        /* Modal */
+        .admin-modal { position: fixed; inset: 0; z-index: 900; background: rgba(30,26,22,0.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .admin-modal-card { background: #fcfaf7; max-width: 500px; width: 100%; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); padding: 24px; }
+        html.dark .admin-modal-card { background: #2d2824; }
+        /* Loading */
+        .admin-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #e4dcd2; border-top-color: #ca8a04; border-radius: 50%; animation: admin-spin 0.8s linear infinite; }
+        @keyframes admin-spin { to { transform: rotate(360deg); } }
+        /* Toast */
+        .admin-toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; padding: 12px 20px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); transform: translateY(100px); opacity: 0; transition: all 0.3s ease; }
+        .admin-toast.show { transform: translateY(0); opacity: 1; }
+        .admin-toast.success { background: #065f46; color: #d1fae5; }
+        .admin-toast.error { background: #991b1b; color: #fce4e4; }
+        /* Pending badge */
+        .pending-badge { display: inline-block; background: #dc2626; color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 999px; margin-left: 6px; }
+        /* Tag */
+        .admin-tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+        .admin-tag-green { background: #d1fae5; color: #065f46; }
+        .admin-tag-yellow { background: #fef3c7; color: #92400e; }
+        .admin-tag-gray { background: #f3f4f6; color: #4b5563; }
+        html.dark .admin-tag-green { background: #064e3b; color: #a7f3d0; }
+        html.dark .admin-tag-yellow { background: #78350f; color: #fde68a; }
+        html.dark .admin-tag-gray { background: #374151; color: #d1d5db; }
+    </style>
+</head>
+<body class="bg-stone-100 dark:bg-stone-900 min-h-screen font-['Noto_Serif_SC','SimSun','STSong',serif]">
+    <div id="loginPage" class="login-container p-4">
+        <div class="bg-white dark:bg-stone-800 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-700 p-8 max-w-sm w-full">
+            <h1 class="text-2xl font-bold text-stone-800 dark:text-stone-100 text-center mb-2">Tus 管理后台</h1>
+            <p class="text-stone-400 dark:text-stone-500 text-sm text-center mb-6">输入 GitHub Token 登录</p>
+            <input type="password" id="adminToken" placeholder="GitHub Token (ghp_...)"
+                class="w-full px-4 py-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400/50 mb-4 text-sm">
+            <p id="loginError" class="text-red-500 text-xs mb-3 hidden">Token 无效，请检查后重试</p>
+            <button onclick="adminLogin()" class="w-full bg-yellow-600 dark:bg-yellow-500 text-stone-900 py-3 rounded-xl hover:bg-yellow-700 dark:hover:bg-yellow-400 font-medium transition-colors text-sm">登 录</button>
+            <p class="text-stone-400 dark:text-stone-500 text-xs text-center mt-4">Token 仅用于操作你的 GitHub 仓库，不会泄露</p>
+        </div>
+    </div>
+
+    <div id="adminApp" class="hidden">
+        <!-- Top nav -->
+        <nav class="bg-white/80 dark:bg-[rgba(28,25,23,0.92)] backdrop-blur-sm border-b border-stone-200 dark:border-stone-700 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+                <a href="." class="text-lg font-bold text-stone-800 dark:text-stone-100 tracking-tight">Tus</a>
+                <span class="text-sm text-stone-400 dark:text-stone-500">管理后台</span>
+                <button onclick="adminLogout()" class="text-sm text-stone-500 dark:text-stone-400 hover:text-red-500 transition-colors">退出</button>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex admin-layout gap-6">
+                <!-- Sidebar -->
+                <div class="admin-sidebar">
+                    <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 overflow-hidden">
+                        <a href="javascript:void(0)" onclick="switchTab('dashboard')" class="tab-link active block px-4 py-3 text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-700/50 border-l-2 border-transparent" data-tab="dashboard">📊 概览</a>
+                        <a href="#" onclick="switchTab('subjects')" class="tab-link block px-4 py-3 text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-700/50 border-l-2 border-transparent" data-tab="subjects">📚 科目管理</a>
+                        <a href="#" onclick="switchTab('papers')" class="tab-link block px-4 py-3 text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-700/50 border-l-2 border-transparent" data-tab="papers">📄 试卷管理</a>
+                        <a href="#" onclick="switchTab('review')" class="tab-link block px-4 py-3 text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-700/50 border-l-2 border-transparent" data-tab="review">📋 审核提交<span id="pendingCount" class="hidden pending-badge">0</span></a>
+                        <a href="#" onclick="switchTab('pending')" class="tab-link block px-4 py-3 text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-700/50 border-l-2 border-transparent" data-tab="pending">🧹 清理 Pending</a>
+                        <a href="#" onclick="switchTab('deploy')" class="tab-link block px-4 py-3 text-sm text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-700/50 border-l-2 border-transparent" data-tab="deploy">🚀 部署</a>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="admin-content">
+                    <div id="tabDashboard" class="tab-content">
+                        <h2 class="text-xl font-bold text-stone-800 dark:text-stone-100 mb-4">概览</h2>
+                        <div id="dashStats" class="flex flex-wrap gap-4 mb-6"></div>
+                        <div id="dashRecent" class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 p-6">
+                            <h3 class="font-semibold text-stone-700 dark:text-stone-200 mb-3">最近更新</h3>
+                            <div id="dashRecentContent" class="text-stone-400 dark:text-stone-500 text-sm">加载中...</div>
+                        </div>
+                    </div>
+
+                    <div id="tabSubjects" class="tab-content hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-bold text-stone-800 dark:text-stone-100">科目管理</h2>
+                            <button onclick="showCreateSubject()" class="bg-yellow-600 dark:bg-yellow-500 text-stone-900 px-4 py-2 rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-400 text-sm font-medium transition-colors">+ 新建科目</button>
+                        </div>
+                        <div id="subjectsList" class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 p-6">
+                            <div class="text-stone-400 dark:text-stone-500 text-sm">加载中...</div>
+                        </div>
+                    </div>
+
+                    <div id="tabPapers" class="tab-content hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-bold text-stone-800 dark:text-stone-100">试卷管理</h2>
+                            <button onclick="showAddPaper()" class="bg-yellow-600 dark:bg-yellow-500 text-stone-900 px-4 py-2 rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-400 text-sm font-medium transition-colors">+ 添加试卷</button>
+                        </div>
+                        <div id="papersList" class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 p-6">
+                            <div class="text-stone-400 dark:text-stone-500 text-sm">加载中...</div>
+                        </div>
+                    </div>
+
+                    <div id="tabReview" class="tab-content hidden">
+                        <h2 class="text-xl font-bold text-stone-800 dark:text-stone-100 mb-4">审核提交</h2>
+                        <div id="reviewList" class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 p-6">
+                            <div class="text-stone-400 dark:text-stone-500 text-sm">加载中...</div>
+                        </div>
+                    </div>
+
+                    <div id="tabPending" class="tab-content hidden">
+                        <h2 class="text-xl font-bold text-stone-800 dark:text-stone-100 mb-4">清理 Pending</h2>
+                        <div id="pendingFiles" class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 p-6">
+                            <div class="text-stone-400 dark:text-stone-500 text-sm">加载中...</div>
+                        </div>
+                    </div>
+
+                    <div id="tabDeploy" class="tab-content hidden">
+                        <h2 class="text-xl font-bold text-stone-800 dark:text-stone-100 mb-4">部署到 GitHub</h2>
+                        <div class="bg-white dark:bg-stone-800 rounded-xl shadow-sm border border-stone-100 dark:border-stone-700 p-6">
+                            <p class="text-stone-500 dark:text-stone-400 text-sm mb-4">将所有数据文件（subjects.json、papers.json）和资源上传到 GitHub，触发 Pages 自动构建。</p>
+                            <button onclick="adminDeploy()" class="bg-yellow-600 dark:bg-yellow-500 text-stone-900 px-6 py-3 rounded-xl hover:bg-yellow-700 dark:hover:bg-yellow-400 font-medium transition-colors text-sm">🚀 执行部署</button>
+                            <div id="deployOutput" class="mt-4 hidden">
+                                <pre class="bg-stone-900 text-stone-200 p-4 rounded-xl text-xs overflow-auto max-h-96 leading-relaxed"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="adminModal" class="hidden admin-modal">
+        <div class="admin-modal-card" id="adminModalContent"></div>
+    </div>
+
+    <!-- Toast -->
+    <div id="adminToast" class="admin-toast"></div>
+
+    <script src="js/admin.js?v=1"></script>
+</body>
+</html>
