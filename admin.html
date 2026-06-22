@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/tailwind.css?v=4">
     <link rel="stylesheet" href="css/style.css?v=4">
     <style>
+        body::after { display: none !important; } /* 去除主站纸张纹理 */
         /* Admin layout */
         .admin-sidebar { width: 220px; flex-shrink: 0; }
         .admin-content { flex: 1; min-width: 0; }
@@ -153,7 +154,7 @@
     </div>
 
     <!-- Modal -->
-    <div id="adminModal" class="hidden admin-modal">
+    <div id="adminModal" class="admin-modal" style="display:none">
         <div class="admin-modal-card" id="adminModalContent"></div>
     </div>
 
