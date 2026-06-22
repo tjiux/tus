@@ -85,34 +85,72 @@ function readJson(str) {
     try { return JSON.parse(str); } catch(e) { return []; }
 }
 
-// ========== 登录 ==========
-function adminLogin() {
-    var token = $('adminToken').value.trim();
-    if (!token) { $('loginError').classList.remove('hidden'); return; }
+// ========== 密码登录 ==========
+function initLoginPage() {
+    var saved = localStorage.getItem('tus_admin_pwd');
+    if (saved) {
+        $('loginSetup').classList.add('hidden');
+        $('loginSignin').classList.remove('hidden');
+    }
+}
+
+function showSetup() {
+    localStorage.removeItem('tus_admin_pwd');
+    localStorage.removeItem('tus_admin_token');
+    $('loginSignin').classList.add('hidden');
+    $('loginSetup').classList.remove('hidden');
+    $('loginError').classList.add('hidden');
+}
+
+function setupLogin() {
+    var pwd = $('setupPassword').value;
+    var pwd2 = $('setupPassword2').value;
+    var token = $('setupToken').value.trim();
+    if (!pwd || !pwd2 || !token) { showToast('请填写完整信息', 'error'); return; }
+    if (pwd !== pwd2) { showToast('两次密码不一致', 'error'); return; }
     TOKEN = token;
     ghGet('').then(function(r) {
         if (r.ok) {
-            $('loginError').classList.add('hidden');
-            $('loginPage').classList.add('hidden');
-            $('adminApp').classList.remove('hidden');
-            initAdmin();
+            localStorage.setItem('tus_admin_pwd', btoa(pwd));
+            localStorage.setItem('tus_admin_token', btoa(token));
+            enterAdmin();
         } else {
-            $('loginError').classList.remove('hidden');
+            showToast('Token 无效，请检查', 'error');
             TOKEN = '';
         }
     });
 }
 
+function passwordLogin() {
+    var pwd = $('loginPassword').value;
+    var saved = localStorage.getItem('tus_admin_pwd');
+    if (saved && btoa(pwd) === saved) {
+        TOKEN = atob(localStorage.getItem('tus_admin_token') || '');
+        if (!TOKEN) { showToast('Token 丢失，请重新设置', 'error'); showSetup(); return; }
+        enterAdmin();
+    } else {
+        $('loginError').classList.remove('hidden');
+    }
+}
+
+function enterAdmin() {
+    $('loginError').classList.add('hidden');
+    $('loginPage').style.display = 'none';
+    $('adminApp').style.display = '';
+    initAdmin();
+}
+
 function adminLogout() {
     TOKEN = '';
-    $('adminApp').classList.add('hidden');
-    $('loginPage').classList.remove('hidden');
-    $('adminToken').value = '';
+    $('adminApp').style.display = 'none';
+    $('loginPage').style.display = '';
+    $('loginPassword').value = '';
+    qsa('.tab-content').forEach(function(el) { el.classList.add('hidden'); });
     $('tabDashboard').classList.remove('hidden');
-    qsa('.tab-content').forEach(function(el) { if (el.id !== 'tabDashboard') el.classList.add('hidden'); });
     qsa('.tab-link').forEach(function(el) { el.classList.remove('active'); });
     qs('.tab-link[data-tab="dashboard"]').classList.add('active');
     currentTab = 'dashboard';
+    initLoginPage();
 }
 
 // ========== 标签切换 ==========
@@ -138,6 +176,8 @@ function closeModal() { $('adminModal').style.display = 'none'; }
 $('adminModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
 // ========== 初始化 ==========
+initLoginPage();
+
 function initAdmin() {
     loadDashboard();
     checkPendingCount();
