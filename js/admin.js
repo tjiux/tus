@@ -85,6 +85,27 @@ function readJson(str) {
     try { return JSON.parse(str); } catch(e) { return []; }
 }
 
+// ========== 暗色模式 ==========
+(function() {
+    var KEY = 'tus_dark';
+    function applyDark(isDark) {
+        if (isDark) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
+        var btn = document.getElementById('adminDarkToggle');
+        if (btn) btn.textContent = isDark ? '亮' : '暗';
+    }
+    var stored = localStorage.getItem(KEY);
+    if (stored === '1') applyDark(true);
+    else if (stored === '0') applyDark(false);
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { applyDark(true); localStorage.setItem(KEY, '1'); }
+    else { var btn = document.getElementById('adminDarkToggle'); if (btn) btn.textContent = '暗'; }
+})();
+function toggleAdminDark() {
+    var isDark = !document.documentElement.classList.contains('dark');
+    if (isDark) { document.documentElement.classList.add('dark'); localStorage.setItem('tus_dark', '1'); } else { document.documentElement.classList.remove('dark'); localStorage.setItem('tus_dark', '0'); }
+    var btn = document.getElementById('adminDarkToggle');
+    if (btn) btn.textContent = isDark ? '亮' : '暗';
+}
+
 // ========== 密码登录 ==========
 function initLoginPage() {
     var saved = localStorage.getItem('tus_admin_pwd');
@@ -343,7 +364,7 @@ async function loadPapers() {
         subs.forEach(function(s) { subsMap[s.id] = s.name; });
         if (!papers.length) { $('papersList').innerHTML = '<p class="text-stone-400">暂无试卷</p>'; return; }
 
-        html = '<table class="admin-table"><thead><tr><th>ID</th><th>标题</th><th>科目</th><th>年份</th><th>学期</th><th>文件</th><th>上传者</th><th>操作</th></tr></thead><tbody>';
+        html = '<table class="admin-table"><thead><tr><th>ID</th><th>标题</th><th>科目</th><th>年份</th><th>学期</th><th>文件</th><th>出卷人</th><th>上传者</th><th>操作</th></tr></thead><tbody>';
         papers.sort(function(a, b) { return b.id - a.id; }).forEach(function(p) {
             html += '<tr><td class="text-stone-400 text-xs">' + p.id + '</td>'
                 + '<td class="font-medium text-stone-700 dark:text-stone-200" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + escapeHtml(p.title) + '">' + escapeHtml(p.title) + '</td>'
@@ -351,6 +372,7 @@ async function loadPapers() {
                 + '<td class="text-stone-500">' + p.year + '</td>'
                 + '<td class="text-stone-500 text-xs">' + escapeHtml(p.semester) + '</td>'
                 + '<td class="text-stone-500 text-xs">' + (p.file_path ? escapeHtml(p.file_path.split('/').pop()) : '-') + '</td>'
+                + '<td class="text-stone-500 text-xs">' + escapeHtml(p.setter || '') + '</td>'
                 + '<td class="text-stone-500 text-xs">' + escapeHtml(p.uploaded_by || '匿名') + '</td>'
                 + '<td><button onclick="editPaper(' + p.id + ')" class="text-amber-600 hover:text-amber-700 text-sm mr-2">编辑</button><button onclick="deletePaper(' + p.id + ')" class="text-red-500 hover:text-red-600 text-sm">删除</button></td></tr>';
         });
@@ -372,6 +394,7 @@ function showAddPaper() {
             + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">年份</label><input id="modalPaperYear" value="' + new Date().getFullYear() + '" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"></div>'
             + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">学期</label><select id="modalPaperSem" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"><option>上学期期末</option><option>上学期期中</option><option>下学期期末</option><option>下学期期中</option></select></div>'
             + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">文件名（assets/papers/ 下）*</label><input id="modalPaperFile" placeholder="如: 2024高数期末.pdf" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"></div>'
+            + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">出卷人（选填）</label><input id="modalPaperSetter" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"></div>'
             + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">上传者（选填）</label><input id="modalPaperUploader" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"></div>'
             + '</div>'
             + '<div class="flex gap-2 mt-6"><button onclick="addPaper()" class="flex-1 bg-yellow-600 dark:bg-yellow-500 text-stone-900 py-2.5 rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-400 font-medium transition-colors text-sm">添加</button><button onclick="closeModal()" class="flex-1 bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 py-2.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors text-sm">取消</button></div>'
@@ -385,6 +408,7 @@ async function addPaper() {
     var year = parseInt($('modalPaperYear').value) || new Date().getFullYear();
     var sem = $('modalPaperSem').value;
     var filePath = $('modalPaperFile').value.trim();
+    var setter = $('modalPaperSetter').value.trim();
     var uploader = $('modalPaperUploader').value.trim() || '管理员';
     if (!title || !filePath) { showToast('请填写标题和文件名', 'error'); return; }
 
@@ -392,7 +416,7 @@ async function addPaper() {
     if (!r.ok) { showToast('读取数据失败', 'error'); return; }
     var papers = readJson(decodeURIComponent(escape(atob(r.data.content))));
     var maxId = papers.reduce(function(m, p) { return Math.max(m, p.id); }, 0);
-    papers.push({ id: maxId + 1, subject_id: subjId, title: title, year: year, semester: sem, file_url: '', file_path: filePath, file_name: filePath, file_size: 0, uploaded_by: uploader, created_at: new Date().toISOString().split('T')[0] });
+    papers.push({ id: maxId + 1, subject_id: subjId, title: title, year: year, semester: sem, setter: setter, file_url: '', file_path: filePath, file_name: filePath, file_size: 0, uploaded_by: uploader, created_at: new Date().toISOString().split('T')[0] });
     var ok = await uploadFile('data/papers.json', JSON.stringify(papers, null, 4), 'Add paper: ' + title);
     if (ok) { showToast('试卷已添加'); closeModal(); loadPapers(); } else showToast('添加失败', 'error');
 }
@@ -416,6 +440,7 @@ function editPaper(id) {
             + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">年份</label><input id="modalPaperYear" value="' + p.year + '" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"></div>'
             + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">学期</label><select id="modalPaperSem" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"><option ' + (p.semester === '上学期期末' ? 'selected' : '') + '>上学期期末</option><option ' + (p.semester === '上学期期中' ? 'selected' : '') + '>上学期期中</option><option ' + (p.semester === '下学期期末' ? 'selected' : '') + '>下学期期末</option><option ' + (p.semester === '下学期期中' ? 'selected' : '') + '>下学期期中</option></select></div>'
             + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">文件路径</label><input id="modalPaperFile" value="' + escapeHtml(p.file_path || '') + '" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"></div>'
+            + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">出卷人</label><input id="modalPaperSetter" value="' + escapeHtml(p.setter || '') + '" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"></div>'
             + '<div><label class="block text-sm font-medium text-stone-600 dark:text-stone-300 mb-1">上传者</label><input id="modalPaperUploader" value="' + escapeHtml(p.uploaded_by || '') + '" class="w-full px-3 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 rounded-lg text-sm"></div>'
             + '</div>'
             + '<div class="flex gap-2 mt-6"><button onclick="savePaper(' + id + ')" class="flex-1 bg-yellow-600 dark:bg-yellow-500 text-stone-900 py-2.5 rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-400 font-medium transition-colors text-sm">保存</button><button onclick="closeModal()" class="flex-1 bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 py-2.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-600 transition-colors text-sm">取消</button></div>'
@@ -436,7 +461,7 @@ async function savePaper(id) {
     var papers = readJson(decodeURIComponent(escape(atob(r.data.content))));
     var p = papers.find(function(x) { return x.id === id; });
     if (!p) { showToast('试卷不存在', 'error'); return; }
-    p.subject_id = subjId; p.title = title; p.year = year; p.semester = sem; p.file_path = filePath; p.file_name = filePath; p.uploaded_by = uploader;
+    p.subject_id = subjId; p.title = title; p.year = year; p.semester = sem; p.file_path = filePath; p.file_name = filePath; p.setter = $('modalPaperSetter').value.trim(); p.uploaded_by = uploader;
     var ok = await uploadFile('data/papers.json', JSON.stringify(papers, null, 4), 'Edit paper: ' + title);
     if (ok) { showToast('已保存'); closeModal(); loadPapers(); } else showToast('保存失败', 'error');
 }
