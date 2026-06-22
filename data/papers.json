@@ -11,8 +11,7 @@
         "file_size": 159658,
         "uploaded_by": "热心同学",
         "download_count": 0,
-        "created_at": "2026-06-19",
-        "setter": "张老"
+        "created_at": "2026-06-19"
     },
     {
         "id": 2,
@@ -26,8 +25,7 @@
         "file_size": 165908,
         "uploaded_by": "热心同学",
         "download_count": 0,
-        "created_at": "2026-06-19",
-        "setter": "测试出卷人"
+        "created_at": "2026-06-19"
     },
     {
         "id": 3,
@@ -41,8 +39,7 @@
         "file_size": 425034,
         "uploaded_by": "热心同学",
         "download_count": 0,
-        "created_at": "2026-06-19",
-        "setter": "张老师"
+        "created_at": "2026-06-19"
     },
     {
         "id": 4,
@@ -56,8 +53,7 @@
         "file_size": 17230,
         "uploaded_by": "热心同学",
         "download_count": 0,
-        "created_at": "2026-06-21",
-        "setter": "hg"
+        "created_at": "2026-06-21"
     },
     {
         "id": 5,
@@ -71,7 +67,6 @@
         "file_size": 760612,
         "uploaded_by": "热心同学",
         "download_count": 0,
-        "created_at": "2026-06-21",
-        "setter": "Haxim"
+        "created_at": "2026-06-21"
     }
 ]
