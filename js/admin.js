@@ -664,8 +664,7 @@ async function adminDeploy() {
         'js/docx-preview.min.js', 'js/jszip.min.js', 'js/pdf.min.mjs', 'js/pdf.worker.min.mjs',
         'favicon.svg',
         'data/subjects.json', 'data/papers.json',
-        'scripts/manage.js', 'scripts/deploy-via-api.js',
-        '.github/ISSUE_TEMPLATE/submit-paper.md'
+        'scripts/manage.js', 'scripts/deploy-via-api.js'
     ];
 
     var success = 0, failed = 0;
