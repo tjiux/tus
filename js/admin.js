@@ -249,10 +249,12 @@ async function loadDashboard() {
 
 async function checkPendingCount() {
     try {
-        var r = await ghGet('/issues?labels=待审核&state=open&per_page=1');
+        var r = await ghGet('/issues?labels=待审核&state=open&per_page=100');
         if (r.ok && r.data && r.data.length > 0) {
             $('pendingCount').textContent = r.data.length;
             $('pendingCount').classList.remove('hidden');
+        } else {
+            $('pendingCount').classList.add('hidden');
         }
     } catch(e) {}
 }
@@ -594,7 +596,7 @@ async function acceptIssue(num) {
         // Close issue
         await ghPatch('/issues/' + num, { state: 'closed', comment: '✅ 已审核通过并添加到试卷库！' });
         showToast('已接受并添加');
-        loadReviewList();
+        setTimeout(function() { loadReviewList(); checkPendingCount(); }, 1500);
     } catch(e) {
         showToast('操作失败: ' + e.message, 'error');
     }
@@ -610,7 +612,7 @@ async function rejectIssue(num) {
         if (repoPath) await deleteRepoFile(repoPath[1]);
         await ghPatch('/issues/' + num, { state: 'closed', comment: '❌ 此提交未通过审核。' });
         showToast('已拒绝');
-        loadReviewList();
+        setTimeout(function() { loadReviewList(); checkPendingCount(); }, 1500);
     } catch(e) {
         showToast('操作失败: ' + e.message, 'error');
     }
@@ -618,7 +620,7 @@ async function rejectIssue(num) {
 
 async function skipIssue(num) {
     showToast('已跳过');
-    loadReviewList();
+    setTimeout(loadReviewList, 1500);
 }
 
 // ========== 清理 Pending ==========
