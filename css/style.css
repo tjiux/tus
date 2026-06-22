@@ -298,6 +298,16 @@ nav .text-2xl.font-bold::after {
     white-space: nowrap;
 }
 
+/* 表单验证错误高亮 */
+.submit-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15) !important;
+}
+html.dark .submit-error {
+    border-color: #f87171 !important;
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.15) !important;
+}
+
 /* 拖拽上传区高亮 */
 .drop-zone-active {
     border-color: #d97706 !important;
