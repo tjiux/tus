@@ -675,22 +675,29 @@ async function adminDeploy() {
         'index.html', 'subject-detail.html', 'submit.html', 'admin.html',
         'css/style.css', 'css/tailwind.css', 'css/announcement.css',
         'js/api-client.js', 'js/index.js', 'js/subject-detail.js', 'js/submit.js', 'js/ui.js', 'js/announcement.js', 'js/admin.js',
-        'js/docx-preview.min.js', 'js/jszip.min.js', 'js/pdf.min.mjs', 'js/pdf.worker.min.mjs',
+        'js/docx-preview.min.js', 'js/jszip.min.js',
         'favicon.svg',
         'scripts/manage.js', 'scripts/deploy-via-api.js'
     ];
 
     var success = 0, failed = 0;
 
-    for (var i = 0; i < files.length; i++) {
+    // 并行上传（每次最多 4 个）
+    async function uploadOne(fp) {
+        log('📤 ' + fp + '...');
         try {
-            log('📤 ' + files[i] + '...');
-            var resp = await fetch(files[i] + '?v=' + Date.now());
-            if (!resp.ok) { log('  ❌ 本地读取失败'); failed++; continue; }
-            var content = await resp.text();
-            var ok = await uploadFile(files[i], content, 'Update ' + files[i]);
-            if (ok) { log('  ✅'); success++; } else { log('  ❌ API 上传失败'); failed++; }
-        } catch(e) { log('  ❌ ' + e.message); failed++; }
+            var resp = await fetch(fp + '?v=' + Date.now());
+            if (!resp.ok) { log('  ❌ 本地读取失败'); return false; }
+            var ok = await uploadFile(fp, await resp.text(), 'Update ' + fp);
+            if (ok) { log('  ✅'); return true; }
+            log('  ❌ API 上传失败'); return false;
+        } catch(e) { log('  ❌ ' + e.message); return false; }
+    }
+    for (var i = 0; i < files.length; i += 4) {
+        var batch = files.slice(i, i + 4);
+        var results = await Promise.all(batch.map(uploadOne));
+        success += results.filter(Boolean).length;
+        failed += results.filter(function(r) { return !r; }).length;
     }
 
     // Trigger Pages build
