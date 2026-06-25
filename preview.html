@@ -100,11 +100,13 @@
 
         function tryNext(idx) {
             if (idx >= attempts.length) {
-                document.getElementById('viewerWrap').innerHTML =
-                    '❌ 所有源都加载失败。' +
-                    '尝试 <a href="' + ghUrl + '" target="_blank" style="color:#facc15;">直接打开文件</a>' +
-                    ' 或 <a href="' + ghUrl + '" download style="color:#facc15;margin-left:8px;">下载</a>';
-                statusEl.textContent = '❌ 失败';
+                // 所有 fetch 都失败，直接用 embed 加载源文件（浏览器原生 PDF 阅读器）
+                document.getElementById('viewerWrap').style.display = 'none';
+                var embed = document.getElementById('pdfViewer');
+                embed.src = ghUrl;
+                embed.style.display = '';
+                statusEl.textContent = '✅ 直接加载';
+                document.getElementById('downloadLink').href = ghUrl;
                 return;
             }
             var attempt = attempts[idx];
