@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF 预览 - Tus</title>
+    <script>if(location.protocol==='http:'&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1')location.href=location.href.replace(/^http:/,'https:')</script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { display: flex; flex-direction: column; height: 100vh; background: #525252; }
@@ -56,27 +57,27 @@
 
         document.getElementById('downloadLink').href = ghUrl;
 
-        // 从 GitHub Pages URL 推导 jsDelivr URL
-        // ghUrl: https://HaximTus.github.io/tus/assets/papers/pending/file.pdf
-        // jsdUrl: https://cdn.jsdelivr.net/gh/HaximTus/tus@main/assets/papers/pending/file.pdf
+        // 解析 GitHub Pages URL，构造多种回源地址
+        // ghUrl: https://HaximTus.github.io/tus/assets/papers/file.pdf
         var match = ghUrl.match(/https:\/\/([^\/]+)\.github\.io\/([^\/]+)\/(.+)/);
-        var jsdUrl = null;
+        var repoWithOwner = null;
+        var filePath = null;
         if (match) {
-            jsdUrl = 'https://cdn.jsdelivr.net/gh/' + match[1] + '/' + match[2] + '@main/' + match[3];
+            repoWithOwner = match[1] + '/' + match[2];  // HaximTus/tus
+            filePath = match[3];                         // assets/papers/file.pdf
         }
 
         var statusEl = document.getElementById('status');
         var loadMsg = document.getElementById('loadMsg');
         var srcLabel = document.getElementById('srcLabel');
 
-        function loadFrom(url, label) {
+        function loadFrom(url, label, timeoutMs) {
             statusEl.textContent = '⏬ ' + label;
             loadMsg.textContent = '正在从 ' + label + ' 获取…';
             srcLabel.textContent = url;
 
-            // 3 秒超时，失败则切换到下一个源
             var controller = new AbortController();
-            var timer = setTimeout(function() { controller.abort(); }, 3000);
+            var timer = setTimeout(function() { controller.abort(); }, timeoutMs || 6000);
 
             return fetch(url, { redirect: 'follow', signal: controller.signal }).then(function(resp) {
                 clearTimeout(timer);
@@ -94,23 +95,53 @@
             });
         }
 
+        // 构建回源列表：CDN → 自定义域名直连 → embed 兜底
         var attempts = [];
-        if (jsdUrl) attempts.push({ url: jsdUrl, label: 'jsDelivr CDN' });
-        attempts.push({ url: ghUrl, label: 'GitHub Pages' });
+
+        // 1) jsDelivr CDN（在中国有时慢，需要 URL 编码中文路径）
+        if (repoWithOwner && filePath) {
+            var encodedPath = encodeURI(filePath);
+            attempts.push({
+                url: 'https://cdn.jsdelivr.net/gh/' + repoWithOwner + '@main/' + encodedPath,
+                label: 'jsDelivr CDN',
+                timeout: 8000
+            });
+        }
+
+        // 2) raw.githubusercontent.com（GitHub 原始文件，通常中国可访问）
+        if (repoWithOwner && filePath) {
+            var encodedPath = encodeURI(filePath);
+            attempts.push({
+                url: 'https://raw.githubusercontent.com/' + repoWithOwner + '/main/' + encodedPath,
+                label: 'GitHub Raw',
+                timeout: 6000
+            });
+        }
+
+        // 3) 自定义域名 HTTPS 直连
+        //    当 ghUrl 是 github.io URL 时，301 会跳到 http://haximtus.cn（HTTP！）
+        //    所以我们手动构造 HTTPS URL 绕过跳转
+        if (filePath) {
+            attempts.push({
+                url: 'https://haximtus.cn/' + filePath,
+                label: 'haximtus.cn',
+                timeout: 5000
+            });
+        }
 
         function tryNext(idx) {
             if (idx >= attempts.length) {
                 // 所有 fetch 都失败，直接用 embed 加载源文件（浏览器原生 PDF 阅读器）
+                // 注意：ghUrl 本身是 github.io，会被跳转到 HTTP，但 embed 在某些浏览器仍可工作
                 document.getElementById('viewerWrap').style.display = 'none';
                 var embed = document.getElementById('pdfViewer');
                 embed.src = ghUrl;
                 embed.style.display = '';
                 statusEl.textContent = '✅ 直接加载';
-                document.getElementById('downloadLink').href = ghUrl;
                 return;
             }
             var attempt = attempts[idx];
-            loadFrom(attempt.url, attempt.label)
+            loadFrom(attempt.url, attempt.label, attempt.timeout)
                 .catch(function(err) {
                     console.warn(attempt.label + ' 失败:', err.message);
                     tryNext(idx + 1);
