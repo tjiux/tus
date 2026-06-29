@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             var ext = (paper.file_name || rawPath).split('.').pop().toLowerCase();
             var isWord = ext === 'doc' || ext === 'docx';
-            var downloadName = paper.file_name || 'paper.' + (isWord ? 'docx' : 'pdf');
+            var downloadName = paper.title + '.' + ext;
             var fileType = isWord ? 'Word' : 'PDF';
             var setter = paper.setter || '';
 
